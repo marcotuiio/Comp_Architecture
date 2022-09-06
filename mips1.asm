@@ -18,4 +18,10 @@ Main:
 		add $s0, $t1, $s0 	# Armazenando e somando resultado dessa iteração atual com anteriores em $s0	
 		addi $t0, $t0, 1    # Somando k+1 e armazenando no reg temp $t0 
 		j Loop  			# Repetindo loop
-	Exit: # Fim do loop	
+	Exit: 					# Fim do loop
+		add $a0, $zero, $s0	
+		addi $v0, $zero, 1
+		syscall 
+		addi $v0, $zero, 10
+		syscall
+		
