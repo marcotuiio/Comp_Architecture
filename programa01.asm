@@ -1,3 +1,5 @@
+## Percorrer vetor e somar, separadamente, elementos positivos e negativos 
+
 .data
 	vetor: .word -2, 4, 7, -3, 0, -3, 5, 6  # Declarando vetor 
 	size: 8  # Declarando tamanho do vetor
