@@ -1,9 +1,9 @@
 ## Ler A e B, positivos
-## Imprimir os múltiplos de A nor intervalo [A, B]
+## Imprimir os múltiplos de A no intervalo [A, AxB]
 
 .data
 	erro: .asciiz "Apenas números positivos, tente novamente\n"
-	msg: .asciiz "-- Múltiplos no intervalo [A,B] --\n\n"
+	msg: .asciiz "-- Múltiplos no intervalo [A,AxB] --\n\n"
 	spc: .asciiz " | " 
 .text
 
@@ -25,8 +25,8 @@ main:
 		la $a0, msg  # Carregando em $a0 a string a printar (Mensagenzinha)
 		addi $v0, $zero, 4  # Informando que o syscall deve printar string
 		syscall
-		
-		add $s2, $zero, $s0  # Copiando para $s2 o valor de A ($s0)
+	
+                mul $s2, $s0, $s1  # Copiando para $s2 o valor de AxB ($s0x$s1)
 		loop:  # Loop para printar múltiplos de A no intervalo
 			sgt $t1, $s2, $s1  # Comparando se valor atual de $s2 é maior que B
 			beq $t1, 1, exit  # Se $t1 = 1, então o intervalo todo de A-B ja foi percorrido
