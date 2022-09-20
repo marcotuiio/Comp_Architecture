@@ -16,10 +16,10 @@ main:
 	add $s1, $v0, $zero  # Armazenando b em $s1
 	
 	positivoA:
-		slt $t0, $zero, $s0  # Se zero menor que $s0, $t0 = 1, logo $s0 positivo
+		slt $t0, 1, $s0  # Se 1 menor que $s0, $t0 = 1, logo $s0 positivo diferente de 0
 		beq $t0, 0, error  # Se $t0 = 0, número em $s0 negativo e vai sair para erro
 	positivoB:
-		slt $t0, $zero, $s1  # Se zero menor que $s1, $t0 = 1, logo $s1 positivo
+		slt $t0, 1, $s1  # Se um menor que $s1, $t0 = 1, logo $s1 positivo diferente de 0
 		beq $t0, 0, error  # Se $t0 = 0, número em $s0 negativo e vai sair para erro
 		
 		la $a0, msg  # Carregando em $a0 a string a printar (Mensagenzinha)
