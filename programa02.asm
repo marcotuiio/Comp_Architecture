@@ -17,18 +17,18 @@ main:
 	
 	positivoA:
 		slt $t0, $zero, $s0  # Se $zero menor que $s0, $t0 = 1, logo $s0 positivo diferente de 0
-		beq $t0, $zero, error  # Se $t0 = 0, número em $s0 negativo e vai sair para erro
+		beq $t0, 0, error  # Se $t0 = 0, número em $s0 negativo e vai sair para erro
 	positivoB:
-		slt $t0, 1, $s1  # Se $zero menor que $s1, $t0 = 1, logo $s1 positivo diferente de 0
+		slt $t0, $zero, $s1  # Se $zero menor que $s1, $t0 = 1, logo $s1 positivo diferente de 0
 		beq $t0, 0, error  # Se $t0 = 0, número em $s0 negativo e vai sair para erro
 		
 		la $a0, msg  # Carregando em $a0 a string a printar (Mensagenzinha)
 		addi $v0, $zero, 4  # Informando que o syscall deve printar string
 		syscall
 	        
-                add $s2, $zero, $s0  # Carregando em $s2 o valor inicial de A ($s0)
-                mul $s2, $s0, $s1  # Copiando para $s2 o valor de AxB ($s0x$s1)
-                add $s3, $t2, $zero  # Armazenando definitivo em $s2 o limite do intervalo ($t2)
+        add $s2, $zero, $s0  # Carregando em $s2 o valor inicial de A ($s0)
+        mul $t2, $s0, $s1  # Copiando para $t2 o valor de AxB ($s0x$s1)
+        add $s3, $t2, $zero  # Armazenando definitivo em $s2 o limite do intervalo ($t2)
 
 		loop:  # Loop para printar múltiplos de A no intervalo
 			sgt $t1, $s2, $s3  # Comparando se valor atual de $s2 é maior que B
