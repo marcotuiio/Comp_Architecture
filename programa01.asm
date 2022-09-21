@@ -17,7 +17,7 @@ main:
 		sll $t1, $s3, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
 		add $t1, $t1, $s6  # Carregando em $t1 = endereço de vetor[i] 
 		lw $t0, 0($t1)  # $t0 = valor de vetor[i]
-		slt	$t2, $zero, $t0  # Se zero é menor que $t0, numero positivo ($t2=1)
+		slt	$t2, $zero, $t0  # Se zero é menor que $t0, número positivo ($t2=1)
 		bne $t2, 1, else  # Se $t2 = 1, numero é positivo então somar na variavel dos positivos	
 		add $s0, $s0, $t0  # $s0 recebendo a soma dos elementos positivos
 		j iterar  # Indo para trecho de atualizar loop
