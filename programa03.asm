@@ -52,7 +52,7 @@ main:
 	
 	print_str("VETOR: \n")
 	store_values:
-		beq $s1, $s0, compute_sum  # Se tamanho máximo do vetor ja foi alcaçando, encerrar
+		beq $s1, $s0, compute_sum  # Se tamanho máximo do vetor ja foi alcançado, encerrar
 		sll $t1, $s1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
 		add $t1, $t1, $s5  # Carregando em $t1 = endereço de vetor[i] 
 		mul $t2, $s1, $s1  # Realizando multiplicação de i*i e armazenando em $s2 
