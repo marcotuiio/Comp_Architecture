@@ -103,62 +103,62 @@
 			addi $s1, $s1, 1  # Atualizando i = i+1
 			j loop_sum
 	exit:
-		la %sum. ($s3)
+		la %sum, ($s3)
 .end_macro
 
 .macro sort_array(%array, %size)
 	add $s0, %size, 0
-	li $s1, 0  # iterador
-	li $s2, 1  # auxiliar para acessar o segundo elemento de cara
-	li $s3, 0  # i
-	add $s5, $s0, -1  # Tamanho do vetor -1 
+	add $s5, $s0, -1  # $s5 = Tamanho do vetor -1 (pois são dois loops com essa condição de parada)
 	la $s6, %array
-
+	
+	li $s3, 0  # i
 	loop1:
-		beq $s2, $s4, end1
+		beq $s3, $s5, end1  # Se i = tamanho do vetor -1
+		li $s2, 1  # auxiliar para acessar o vet[j+1]
 		li $s4, 0  # j
 		loop2:
-			beq $s3, $s4, end2	
-			sll $t1, $s1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
-			add $t1, $t1, $s2  # Carregando em $t1 = endereço de vetor[i]
-			lw $t2, 0($t1)  # $t2 = valor de vetor[i]
-			sll $t1, $s2, 2  # Reg temp $t1 = 4*i (indice atual+1 do vetor)
-			add $t1, $t1, $s2  # Carregando em $t1 = endereço de vetor[i+1] 
-			lw $t3, 0($t4)  # $t2 = valor de vetor[i]
+			beq $s4, $s5, end2	# Se j = tamanho do vetor -1
+			sll $t1, $s4, 2  # Reg temp $t1 = 4*j (indice atual do vetor)
+			add $t1, $t1, $s6  # Carregando em $t1 = endereço de vetor[j]
+			lw $t2, 0($t1)  # $t2 = valor de vetor[j]
+			sll $t3, $s2, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
+			add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
+			lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
 			
-			sgt $t0, $t2, $t3  # Se vetor[i] > vetor[i+1], $t0=1
+			sgt $t0, $t2, $t4  # Se vetor[j] > vetor[j+1], $t0=1
 			bne $t0, 1, rept
 			swap:
-				add $t0, $t2, 0
-				sw $t3, 0($t1)
-				sw $t0, 0($t3) 			
+				add $t5, $t2, 0  # $t5 = vet[j] 
+				sw $t4, 0($t1)  # vet[j] = vet[j+1], posição 0($t1) recebendo conteúdo de $t4  
+				sw $t5, 0($t3)  # vet[j+1] = vet[j], posição 0($t3) recebendo conteúdo de $t5			
 			rept:
-				addi $s4, $s4, 1
+				addi $s2, $s2, 1  # (j+1) = j+1
+				addi $s4, $s4, 1  # j = j + 1
 				j loop2
 			
 		end2:
-			addi $s3, $s3, 1
+			addi $s3, $s3, 1  # i = i + 1
 			j loop1
 	end1:
 .end_macro
 
 ## Uteis
 .macro fatorial(%n, %fat)
-	add $s0, %n, 0
-	li $s1, 1
+	add $t0, %n, 0
+	li $t1, 1
 	
 	zero_um:
-		beq $s0, 0, exit
-		beq $s0, 1, exit
+		beq $t0, 0, exit
+		beq $t0, 1, exit
 	
 	loop:	
-		beq $s0, 1, exit
-		mul $s1, $s0, $s1
-		sub $s0, $s0, 1 
+		beq $t0, 1, exit
+		mul $t1, $t0, $t1
+		sub $t0, $t0, 1 
 		j loop
 	
 	exit:
-		la %fat, ($s1)
+		la %fat, ($t1)
 .end_macro
 
 .macro numero_perfeito(%n, %resultado) 
@@ -181,7 +181,8 @@
 			
 	result:
 		bne $s5, $s0, nope  # Se soma não for igual ao número passado, não é
-		la %resultado, (1)	
+		li $t0, 1
+		la %resultado, ($t0)	
 		#print_str(" É um número perfeito\n")
 		j end
 		nope:
