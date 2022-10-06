@@ -160,3 +160,32 @@
 	exit:
 		la %fat, ($s1)
 .end_macro
+
+.macro numero_perfeito(%n, %resultado) 
+	# Ao fim, se %n for numero perfeito, %resultado = 1, senão %resultado = 0
+	add $s0, %n, 0
+	li $s5, 0  # Load inicial de $s5 com 0, armazenará a soma dos divisores 
+	li $s1, 1  # Load inicial de divisores 
+	# Obs: poderia começar $s5 em 1 e $s1 em 2 pois 1 é divisor universal, porém por 
+	# motivos de estética optei por começar dos valores padrões
+	loop: 
+		beq $s1, $s0, result
+		div $s0, $s1  # Dividindo $s0 por $s1 e assim o qouciente estará em LO e o resto em HI
+		mfhi $t1  # Recuperando resto da divisão e armaenando em $t1
+		bne $t1, $zero, repetir  # Se resto for zero, devo acumalar, senão preparar para repetir loop
+		add $s5, $s5, $s1
+								
+		repetir:  # Preparação padrão para repetir loop
+			add $s1, $s1, 1  # Somando mais 1 no divisor $s1
+			j loop  # repetindo loop
+			
+	result:
+		bne $s5, $s0, nope  # Se soma não for igual ao número passado, não é
+		la %resultado, (1)	
+		#print_str(" É um número perfeito\n")
+		j end
+		nope:
+			la %resultado, ($zero) 
+			#print_str(" NÃO é um número perfeito\n")
+	end:
+.end_macro
