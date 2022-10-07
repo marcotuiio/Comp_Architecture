@@ -55,55 +55,77 @@
 ## ARRAYS
 .macro scan_array(%array, %size)
 	add $s0, %size, 0
-	li $s1, 0
-	li $s2, 0
-	la $s3, %array
+	li $t1, 0
+	li $t2, 0
+	la $t3, %array
 	loop_load:	
-			beq $s0, $s2, exit
-			sll $t1, $s1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
-			add $t1, $t1, $s3  # Carregando em $t1 = endereço de vetor[i] 
+			beq $s0, $t2, exit
+			sll $t4, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t4, $t4, $t3  # Carregando em $t1 = endereço de vetor[i] 
 			print_str("v[")
-			print_int($s2)
+			print_int($t2)
 			print_str("] = ")
-			scan_int($t2)
-			sw $t2, 0($t1)  # Armazenando valor de $t2 na posição [i] $t1 do vetor
-			addi $s1, $s1, 1  # Iterador do vetor +1
-			addi $s2, $s2, 1  # Iterador estético +1
+			scan_int($t5)
+			sw $t5, 0($t4)  # Armazenando valor de $t2 na posição [i] $t1 do vetor
+			addi $t1, $t1, 1  # Iterador do vetor +1
+			addi $t2, $t2, 1  # Iterador estético +1
 			j loop_load
 	exit:
 .end_macro
 
 .macro print_array(%array, %size)
 	add $s0, %size, 0
-	li $s1, 0
-	la $s2, %array
+	li $t1, 0
+	la $t2, %array
 	loop_print:	
-			beq $s0, $s1, exit  # Se tamanho máximo do vetor ja foi alcançado, encerrar
-			sll $t1, $s1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
-			add $t1, $t1, $s2  # Carregando em $t1 = endereço de vetor[i] 
-			lw $t2, 0($t1)  # $t2 = valor de vetor[i]
-			print_int($t2)
+			beq $s0, $t1, exit  # Se tamanho máximo do vetor ja foi alcançado, encerrar
+			sll $t3, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t3, $t3, $t2  # Carregando em $t1 = endereço de vetor[i] 
+			lw $t4, 0($t3)  # $t2 = valor de vetor[i]
+			print_int($t4)
 			print_str(" | ")
-			addi $s1, $s1, 1  # Atualizando i = i+1
+			addi $t1, $t1, 1  # Atualizando i = i+1
 			j loop_print
 	exit:
 .end_macro
 
 .macro sum_array(%array, %size, %sum)
 	add $s0, %size, 0
-	li $s1, 0
-	la $s2, %array
-	li $s3, 0
+	li $t1, 0  # Iterador
+	la $t2, %array
+	li $t3, 0  # Variável soma
 	loop_sum:	
-			beq $s0, $s1, exit  # Se tamanho máximo do vetor ja foi alcançado, encerrar
-			sll $t1, $s1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
-			add $t1, $t1, $s2  # Carregando em $t1 = endereço de vetor[i] 
-			lw $t2, 0($t1)  # $t2 = valor de vetor[i]
-			add $s3, $s3, $t2  # Amazenando no endereço fornecido a soma dos elementos do vetor
-			addi $s1, $s1, 1  # Atualizando i = i+1
+			beq $s0, $t1, exit  # Se tamanho máximo do vetor ja foi alcançado, encerrar
+			sll $t4, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t4, $t4, $t2  # Carregando em $t1 = endereço de vetor[i] 
+			lw $t5, 0($t4)  # $t2 = valor de vetor[i]
+			add $t3, $t3, $t5  # Amazenando no endereço fornecido a soma dos elementos do vetor
+			addi $t1, $t1, 1  # Atualizando i = i+1
 			j loop_sum
 	exit:
-		la %sum, ($s3)
+		la %sum, ($t3)
+.end_macro
+
+.macro sum_pares(%array, %size, %sum)
+	add $s0, %size, 0
+	li $t5, 0  # Iterador
+	la $t6, %array
+	li $t7, 0  # Variável soma
+	loop_sum:	
+			beq $s0, $t5, exit  # Se tamanho máximo do vetor ja foi alcançado, encerrar
+			sll $t1, $t5, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t1, $t1, $t6  # Carregando em $t1 = endereço de vetor[i] 
+			lw $t2, 0($t1)  # $t2 = valor de vetor[i]
+			li $t8, 2
+			div $t2, $t8   # Dividindo vet[i] por 2 para saber se é par
+			mfhi $t3
+			bne $t3, 0, repet  # Se o resto da divisão for diferente de 0, número ímpar não somar
+			add $t7, $t7, $t2  # Amazenando no endereço fornecido a soma dos elementos do vetor
+			repet:	
+				addi $t5, $t5, 1  # Atualizando i = i+1
+				j loop_sum
+	exit:
+		la %sum, ($t7)
 .end_macro
 
 .macro sort_array(%array, %size)
@@ -111,17 +133,17 @@
 	add $s5, $s0, -1  # $s5 = Tamanho do vetor -1 (pois são dois loops com essa condição de parada)
 	la $s6, %array
 	
-	li $s3, 0  # i
+	li $t6, 0  # i
 	loop1:
-		beq $s3, $s5, end1  # Se i = tamanho do vetor -1
-		li $s2, 1  # auxiliar para acessar o vet[j+1]
+		beq $t6, $s5, end1  # Se i = tamanho do vetor -1
+		li $s3, 1  # auxiliar para acessar o vet[j+1]
 		li $s4, 0  # j
 		loop2:
 			beq $s4, $s5, end2	# Se j = tamanho do vetor -1
 			sll $t1, $s4, 2  # Reg temp $t1 = 4*j (indice atual do vetor)
 			add $t1, $t1, $s6  # Carregando em $t1 = endereço de vetor[j]
 			lw $t2, 0($t1)  # $t2 = valor de vetor[j]
-			sll $t3, $s2, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
+			sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
 			add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
 			lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
 			
@@ -132,12 +154,12 @@
 				sw $t4, 0($t1)  # vet[j] = vet[j+1], posição 0($t1) recebendo conteúdo de $t4  
 				sw $t5, 0($t3)  # vet[j+1] = vet[j], posição 0($t3) recebendo conteúdo de $t5			
 			rept:
-				addi $s2, $s2, 1  # (j+1) = j+1
+				addi $s3, $s3, 1  # (j+1) = j+1
 				addi $s4, $s4, 1  # j = j + 1
 				j loop2
 			
 		end2:
-			addi $s3, $s3, 1  # i = i + 1
+			addi $t6, $t6, 1  # i = i + 1
 			j loop1
 	end1:
 .end_macro
@@ -148,41 +170,41 @@
 	li $t1, 1
 	
 	zero_um:
-		beq $t0, 0, exit
+		beq $t0, 0, exit  # Se número passado for igual a zero ou 1, dispensa loop
 		beq $t0, 1, exit
 	
 	loop:	
-		beq $t0, 1, exit
-		mul $t1, $t0, $t1
-		sub $t0, $t0, 1 
+		beq $t0, 1, exit  # Enquanto $t0 for diferente de 1
+		mul $t1, $t0, $t1  # Armazenando em $t1 o produto de n * (n-1)
+		sub $t0, $t0, 1  # Realizando n-1
 		j loop
 	
 	exit:
-		la %fat, ($t1)
+		la %fat, ($t1)  # Armazendando o resultado no registrador passado
 .end_macro
 
 .macro numero_perfeito(%n, %resultado) 
 	# Ao fim, se %n for numero perfeito, %resultado = 1, senão %resultado = 0
-	add $s0, %n, 0
-	li $s5, 0  # Load inicial de $s5 com 0, armazenará a soma dos divisores 
-	li $s1, 1  # Load inicial de divisores 
-	# Obs: poderia começar $s5 em 1 e $s1 em 2 pois 1 é divisor universal, porém por 
+	add $t0, %n, 0
+	li $t5, 0  # Load inicial de $t5 com 0, armazenará a soma dos divisores 
+	li $t1, 1  # Load inicial de divisores 
+	# Obs: poderia começar $t5 em 1 e $t1 em 2 pois 1 é divisor universal, porém por 
 	# motivos de estética optei por começar dos valores padrões
 	loop: 
-		beq $s1, $s0, result
-		div $s0, $s1  # Dividindo $s0 por $s1 e assim o qouciente estará em LO e o resto em HI
-		mfhi $t1  # Recuperando resto da divisão e armaenando em $t1
-		bne $t1, $zero, repetir  # Se resto for zero, devo acumalar, senão preparar para repetir loop
-		add $s5, $s5, $s1
+		beq $t1, $t0, result
+		div $t0, $t1  # Dividindo $t0 por $t1 e assim o qouciente estará em LO e o resto em HI
+		mfhi $t2  # Recuperando resto da divisão e armaenando em $t2
+		bne $t2, $zero, repetir  # Se resto for zero, devo acumalar, senão preparar para repetir loop
+		add $t5, $t5, $t1
 								
 		repetir:  # Preparação padrão para repetir loop
-			add $s1, $s1, 1  # Somando mais 1 no divisor $s1
+			add $t1, $t1, 1  # Somando mais 1 no divisor $s1
 			j loop  # repetindo loop
 			
 	result:
-		bne $s5, $s0, nope  # Se soma não for igual ao número passado, não é
-		li $t0, 1
-		la %resultado, ($t0)	
+		bne $t5, $t0, nope  # Se soma não for igual ao número passado, não é
+		li $t3, 1
+		la %resultado, ($t3)	
 		#print_str(" É um número perfeito\n")
 		j end
 		nope:
