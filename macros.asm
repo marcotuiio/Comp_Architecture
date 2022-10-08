@@ -164,6 +164,34 @@
 	end1:
 .end_macro
 
+.macro rotate_array(%array, %size)
+		add $s0, %size, 0
+		la $t6, %array
+		sub $t7, $s0, 1  # $s2 = tamanho-1
+		sll $t1, $t7, 2  # Reg temp $t1 = vetor[tamanho-1], último elemento
+		add $t1, $t1, $t6  # Carregando em $t1 = endereço de vetor[tamanho-1]
+		lw $t2, 0($t1)  # $t2 = valor de vetor[tamanho-1]
+		rotate1:
+			beq $t7, $zero, exit  # enquanto i > 0
+			sub $t4, $t7, 1  # $t3 = i - 1, aux
+		
+			sll $t1, $t7, 2  # Reg temp $t1 = vetor[i]
+			add $t1, $t1, $t6  # Carregando em $t1 = endereço de vetor[i]
+		
+			sll $t3, $t4, 2  # Reg temp $t3 = vetor[i-1]
+			add $t3, $t3, $t6  # Carregando em $t1 = endereço de vetor[tamanho-1]
+			lw $t5, 0($t3)  # $t5 = conteudo da posição vetor[i-1]
+		
+			sw $t5, 0($t1)  # Armazenando na posição i o conteudo da posição i-1
+			sub $t7, $t7, 1  # i = i - 1
+ 			j rotate1	
+			
+		exit:
+			li $t1, 0  # Zerando $t1
+			add $t1, $t1, $t6  # Acessando primeira posição do vetor
+			sw $t2, 0($t1)  # Começo do vetor redefinido, vetor[0] = antigo último
+.end_macro
+
 ## Uteis
 .macro fatorial(%n, %fat)
 	add $t0, %n, 0

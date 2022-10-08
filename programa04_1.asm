@@ -4,7 +4,7 @@
 .text
 	
 main:
-	print_str("\nInforme um número para ser o tamanho do vetor: ")
+	print_str("\nInforme o tamanho do vetor: ")
 	scan_int($s0)
 	print_str("\nInforme uma chave K para quantidade entre 2 e 2*k: ")	
 	scan_int($s1)
@@ -86,6 +86,8 @@ main:
 			j loop_perf
 	exit3:
 	print_int($s4)	
+	
+	# Calcular semiprimos ???
 		
 	terminate
 	

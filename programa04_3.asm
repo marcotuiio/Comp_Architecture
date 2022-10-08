@@ -10,9 +10,13 @@ main:
 	scan_int($s1)
 	
 	ifs:
+		slt $t0, $s0, $zero  # Se N < 0, $t0 = 1
+		beq $t0, 1, erro1  # Sair com mensagem de erro
+		slt $t0, $s1, $zero  # Se P < 0, $t0 = 1
+		beq $t0, 1, erro1  # Sair com mensagem de erro
 		beq $s0, $s1, continua # Se N = P, não teremos problemas
 		sgt $t0, $s0, $s1  # Se N > P, $t0 = 1 e tudo está certo
-		beq $t0, $zero, erro  # Se N < P, $t0 = 0 e não pedemos ter fatorial de negativos 
+		beq $t0, $zero, erro2  # Se N < P, $t0 = 0 e não pedemos ter fatorial de negativos 
 		
 	continua:
 		fatorial($s0, $s2)  # Em $s2 estará o resultado de n! após a execução da macro
@@ -24,10 +28,13 @@ main:
 		
 		print_str("\nRESULTADO = ")
 		print_int($t1)
-		print_str(", ")
+		print_str(".")
 		print_int($t2)
 		terminate
 	
-	erro:
+	erro1:
+		print_str("\nN e P devem ser estritamente positivos, tente novamente\n")
+		terminate
+	erro2:
 		print_str("\nN deve ser maior que P, tente novamente\n")
 		terminate
