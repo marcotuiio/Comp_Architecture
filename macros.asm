@@ -211,7 +211,7 @@
 		la %fat, ($t1)  # Armazendando o resultado no registrador passado
 .end_macro
 
-.macro numero_perfeito(%n, %resultado) 
+.macro perfect_number(%n, %resultado) 
 	# Ao fim, se %n for numero perfeito, %resultado = 1, senão %resultado = 0
 	add $t0, %n, 0
 	li $t5, 0  # Load inicial de $t5 com 0, armazenará a soma dos divisores 
@@ -239,4 +239,41 @@
 			la %resultado, ($zero) 
 			#print_str(" NÃO é um número perfeito\n")
 	end:
+.end_macro
+
+.macro semi_primes(%n, %result)
+	add $t0, %n, 0  # em $t0 está o número a ser verificado
+	li $t1, 0  # $t1 é um contador
+	li $t2, 2  # iterador i iniciando em 2
+	li $t5, 2
+	
+	for:
+		mul $t3, $t2, $t2  # flag de parada do loop1 
+		beq $t0, $t3, exit1  # sair se i*i chegar em num ($t2<=$t2, $t2)
+		sgt $t4, $t5, $t1  # se contador < 2, $t4 = 1 
+		bne $t4, 1, exit1 # sair se contador chegar em 2 ($t1<2) 
+		while:
+			div $t0, $t2  # dividindo num / i
+			mfhi $t4  # resto da divisão num / i em $t4
+			bne $t4, $zero, repet  # enquanto resto de num / i = 0
+			div $t0, $t2  # $t0 dividido por i
+			mflo $t0  # $t0 passa a ser igual ao resultado da divisão anterior 
+			add $t1, $t1, 1  # contador = contador + 1, computando qntd de números primos
+			j while
+		repet:
+			add $t2, $t2, 1  # i = i + 1
+			j for	
+	exit1:
+	
+	sgt $t5, $t0, 1  # se $t0 > 1, $t5 = 1
+	bne $t5, 1, sets
+	add $t1, $t1, 1  # contador = contador + 1
+	
+	sets:
+		la %result, ($zero)  # deixando por garantia resultado falso, retorna 0 no endereço de result
+		bne $t1, 2, return  # se contador = 2 então é semiprimo 
+		la %result, 1  # retorna 1 no endereço passado de resultado
+		# print_str("\nÉ SEMIPRIMO")
+		
+	return:	
 .end_macro

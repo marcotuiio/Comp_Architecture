@@ -73,21 +73,45 @@ main:
 	print_str("\n\n (e) Soma dos números perfeitos menos a soma dos números semiprimos:\n")
 	li $s4, 0  # Soma dos perfeitos
 	li $s5, 0  # Iterador
+	li $s7, 0  # Soma dos semiprimos
 	loop_perf:
 		beq $s0, $s5, exit3  # Se tamanho máximo do vetor ja foi alcançado, encerrar
 		sll $t1, $s5, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
 		add $t1, $t1, $s6  # Carregando em $t1 = endereço de vetor[i] 
 		lw $s1, 0($t1)  # $s1 = valor de vetor[i]
-		numero_perfeito($s1, $t3)  # Macro para verificar se número em $s1 é perfeito 
-		bne $t3, 1, repet3  # Se $t3 for 1, na macro ele foi considerado um número positivo
+		perfect_number($s1, $t3)  # Macro para verificar se número em $s1 é perfeito 
+		bne $t3, 1, semi  # Se $t3 for 1, na macro ele foi considerado um número positivo
 		add $s4, $s4, $s1  # Somanado em $s4 os números perfeitos
+		semi:
+			semi_primes($s1, $t6)
+			bne $t6, 1, repet3
+			add $s7, $s7, $s1
 		repet3:
 			addi $s5, $s5, 1  # Atualizando i = i + 1
 			j loop_perf
 	exit3:
-	print_int($s4)	
 	
-	# Calcular semiprimos ???
-		
+	li $s5, 0  # Iterador
+	li $s7, 0  # Soma dos semiprimos
+	loop_semi:
+		beq $s0, $s5, exit4  # Se tamanho máximo do vetor ja foi alcançado, encerrar
+		sll $t1, $s5, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+		add $t1, $t1, $s6  # Carregando em $t1 = endereço de vetor[i] 
+		lw $s1, 0($t1)  # $s1 = valor de vetor[i]
+		semi_primes($s1, $t6)
+		bne $t6, 1, repet4
+		add $s7, $s7, $s1
+		repet4:
+			addi $s5, $s5, 1  # Atualizando i = i + 1
+			j loop_semi
+	exit4:
+	
+	print_int($s4)
+	print_str(" + ")
+	print_int($s7)
+	add $s4, $s4, $s7
+	print_str(" = ")
+	print_int($s4)
+	
 	terminate
 	
