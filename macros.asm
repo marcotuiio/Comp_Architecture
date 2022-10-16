@@ -248,15 +248,15 @@
 	li $t5, 2
 	
 	for:
-		mul $t3, $t2, $t2  # flag de parada do loop1 
-		beq $t0, $t3, exit1  # sair se i*i chegar em num ($t2<=$t2, $t2)
+		mul $t3, $t2, $t2  # para flag de parada do for 
+		sgt $t4, $t0, $t3  # sair se i*i chegar em num ($t3<=$t2)
+		bne $t4, 1, exit1  
 		sgt $t4, $t5, $t1  # se contador < 2, $t4 = 1 
 		bne $t4, 1, exit1 # sair se contador chegar em 2 ($t1<2) 
 		while:
 			div $t0, $t2  # dividindo num / i
 			mfhi $t4  # resto da divisão num / i em $t4
 			bne $t4, $zero, repet  # enquanto resto de num / i = 0
-			div $t0, $t2  # $t0 dividido por i
 			mflo $t0  # $t0 passa a ser igual ao resultado da divisão anterior 
 			add $t1, $t1, 1  # contador = contador + 1, computando qntd de números primos
 			j while
