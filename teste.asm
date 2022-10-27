@@ -1,8 +1,8 @@
 .include "macros.asm"
 
 main:
-	li $s0, 12
-	semi_primes($s0, $t6)
+	li $s0, 13
+	fatorial($s0, $t6)
 	print_str("\n$t6 = ")
 	print_int($t6) 
 	
