@@ -192,6 +192,28 @@
 			sw $t2, 0($t1)  # Começo do vetor redefinido, vetor[0] = antigo último
 .end_macro
 
+.macro has_element(%array, %size, %element, %result)
+	add $s7, %size, 0
+	add $t9, %element, 0
+	li $t4, 0
+	la $t5, %array
+	loop_load:	
+			beq $s7, $t4, exit
+			sll $t7, $t4, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t7, $t7, $t5  # Carregando em $t1 = endereço de vetor[i]
+			lw $t8, 0($t7)  # $t2 = valor de vetor[i]
+			beq $t8, $t9, equals
+			addi $t4, $t4, 1  # Iterador do vetor +1
+			j loop_load
+	equals:
+		la %result, ($t8)
+		j end
+	exit:
+		la %result, ($zero)
+	end:
+.end_macro
+
+
 ## Uteis
 .macro fatorial(%n, %fat)
 	add $t0, %n, 0
