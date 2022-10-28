@@ -35,10 +35,12 @@ main:
 	
 	li $s4, 2  # Variavel para multiplicar A e B, variando até no maximo N
 	li $s7, 2  # Contador de numeros ja no vetor
-	
+	mul $s3, $s0, 2
+
 	jal multiplos
-	sort_array(vetor, $s0)  # Ordenando elementos no vetor de multiplos
-	print_array(vetor, $s0)
+	add $s1, $s0, $zero
+	sort_array(vetor, $s7)  # Ordenando elementos no vetor de multiplos
+	print_array(vetor, $s1)
 	
 	terminate
 	
@@ -46,9 +48,10 @@ main:
 		mul $t1, $s1, $s4  # $t1 = a * x, com x indo de 1 até no maximo N
 		mul $t2, $s2, $s4  # $t2 = b * x, com x indo de 1 até no maximo N
 	
-		# Basicamente verifica se o elemento existe no vetor, se for a primeira ocorrencia
+		# Basicamente verifica se o elemento existe no vetor e, se for a primeira ocorrencia,
 		# adiciona normalmente num vetor, senão pula para o proximo multiplo possível
- 		# Ao final, teremos um vetor com N posições que poderá facilmente ser ordenado e exibido
+ 		# Ao final, teremos um vetor com 2*N posições que poderá facilmente ser ordenado e exibido
+ 		# porém só seram exibidos os N primeiros elementos desse vetor
  		
 		has_element(vetor, $s7, $t1, $t0)  # Verifica se elemento ja existe no vetor
 		bne $t0, $zero, again  # se $t9 != 0, elemento ja existe
@@ -69,7 +72,7 @@ main:
 		
 		repet:
 			add $s4, $s4, 1  # Somando 1 em $s4
-			sgt $t0, $s7, $s0  # Verificando para não deixar o tamanho do vetor extrapolar N
+			sgt $t0, $s7, $s3  # Verificando para não deixar o tamanho do vetor extrapolar N
 			beq $t0, $zero, multiplos
 			jr $ra
 			
