@@ -13,7 +13,7 @@
 .end_macro
 
 .macro print_float(%x)
-	add $f12, %x, $zero  # Carregando $a0 com float %x a printar
+	mov.s $f12, %x  # Carregando $a0 com float %x a printar
 	addi $v0, $zero, 2  # Informando que o syscall deve printar int
 	syscall
 .end_macro
