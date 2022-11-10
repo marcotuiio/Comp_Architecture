@@ -28,8 +28,8 @@
 .end_macro
 
 .macro print_char(%c)
-	add $a0, %x, $zero  # Carregando $a0 com o char %c a printar
-	addi $v0, $zero, 11  # Informando que o syscall deve printar char
+	lb $a0, %c  # Carregando $a0 com o char %c a printar
+	li $v0, 11  # Informando que o syscall deve printar char
 	syscall
 .end_macro 
 
