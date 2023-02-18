@@ -15,8 +15,10 @@
 		
 		la $a0, Mat # Endereço base de Mat
       	jal leitura # leitura(mat, nlin, ncol)
+      	print_str("\n\n Matriz de entrada\n")
+      	print_matrix(Mat, $a1, $a2)
       	
-      	move $a0, $v0
+      	la $a0, Mat
       	jal upper_vogals
       	
       	move $a0, $v0
@@ -24,17 +26,19 @@
       	li $s4, 0
       	jal count_three
       	
-      	print_str("\n\n Quantidade de vogais na matriz de entrada: ")
+      	print_str("\n Quantidade de vogais na matriz de entrada: ")
       	print_int($s0)
       	print_str("\n Caracteres que repetem 3 ou mais vezes: ")
       	print_array_char(vet, $s4)
       	
       	bne $a1, $a2, end
-     	print_str("\n Diagonal da matriz de ordem n: ")
+     	print_str("\n Diagonal da matriz de entrada de ordem n: ")
       	la $a0, Mat # Endereço base de Mat
       	jal diag
       	end:
-      	print_str("\n\n")
+      	mul $s0, $a1, $a2
+      	sort_array_decrescente(Mat, $s0)
+      	print_str("\n\n Estágio final da matriz\n")
       	print_matrix(Mat, $a1, $a2)
       	
       	terminate

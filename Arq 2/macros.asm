@@ -163,8 +163,42 @@
 			sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
 			add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
 			lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
-			s
 			sgt $t0, $t2, $t4  # Se vetor[j] > vetor[j+1], $t0=1
+			bne $t0, 1, rept
+			swap:
+				add $t5, $t2, 0  # $t5 = vet[j] 
+				sw $t4, 0($t1)  # vet[j] = vet[j+1], posição 0($t1) recebendo conteúdo de $t4  
+				sw $t5, 0($t3)  # vet[j+1] = vet[j], posição 0($t3) recebendo conteúdo de $t5			
+			rept:
+				addi $s3, $s3, 1  # (j+1) = j+1
+				addi $s4, $s4, 1  # j = j + 1
+				j loop2
+			
+		end2:
+			addi $t6, $t6, 1  # i = i + 1
+			j loop1
+	end1:
+.end_macro
+
+.macro sort_array_decrescente(%array, %size)
+	add $s0, %size, 0
+	add $s5, $s0, -1  # $s5 = Tamanho do vetor -1 (pois são dois loops com essa condição de parada)
+	la $s6, %array
+	
+	li $t6, 0  # i
+	loop1:
+		beq $t6, $s5, end1  # Se i = tamanho do vetor -1
+		li $s3, 1  # auxiliar para acessar o vet[j+1]
+		li $s4, 0  # j
+		loop2:
+			beq $s4, $s5, end2	# Se j = tamanho do vetor -1
+			sll $t1, $s4, 2  # Reg temp $t1 = 4*j (indice atual do vetor)
+			add $t1, $t1, $s6  # Carregando em $t1 = endereço de vetor[j]
+			lw $t2, 0($t1)  # $t2 = valor de vetor[j]
+			sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
+			add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
+			lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
+			slt $t0, $t2, $t4  # Se vetor[j] < vetor[j+1], $t0=1
 			bne $t0, 1, rept
 			swap:
 				add $t5, $t2, 0  # $t5 = vet[j] 
