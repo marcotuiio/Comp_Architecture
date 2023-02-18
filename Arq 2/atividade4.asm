@@ -11,13 +11,14 @@
 	  	print_str("Informe a dimensão M da matriz: ")
 		scan_int($a2) # Número de colunas 	
 		
-		li $s0, 0 # Contador de vogais
-		
 		la $a0, Mat # Endereço base de Mat
       	jal leitura # leitura(mat, nlin, ncol)
       	print_str("\n\n Matriz de entrada\n")
       	print_matrix(Mat, $a1, $a2)
       	
+      	li $t0, 0
+      	li $t1, 0
+      	li $s0, 0 # Contador de vogais
       	la $a0, Mat
       	jal upper_vogals
       	
@@ -37,7 +38,7 @@
       	jal diag
       	end:
       	mul $s0, $a1, $a2
-      	sort_array_decrescente(Mat, $s0)
+ 		jal sort_decrescente
       	print_str("\n\n Estágio final da matriz\n")
       	print_matrix(Mat, $a1, $a2)
       	
@@ -157,7 +158,7 @@
 	
    		next_out:
    			blt $s1, 3, n
-   			### Adicionando os caracteres em um vetor para facilitar exibição futuramente
+   			### Adicionando os caracteres de forma única em um vetor para facilitar exibição futuramente
    			has_element(vet, $s4, $t2, $t7)
    			beq $t7, $t2, n
 			sll $t6, $s4, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
@@ -197,3 +198,36 @@
   		move $v0, $a3 # Endereço base da matriz para retorno
    		jr $ra # Retorna  
    		
+   	## Bubble sort de forma descrescente dos char na tabela ascii
+	sort_decrescente:
+		add $s5, $s0, -1  # $s5 = Tamanho do vetor -1 (pois são dois loops com essa condição de parada)
+		la $s6, Mat
+		li $t6, 0  # i
+		loop1:
+			beq $t6, $s5, end1  # Se i = tamanho do vetor -1
+			li $s3, 1  # auxiliar para acessar o vet[j+1]
+			li $s4, 0  # j
+			loop2:
+				beq $s4, $s5, end2	# Se j = tamanho do vetor -1
+				sll $t1, $s4, 2  # Reg temp $t1 = 4*j (indice atual do vetor)
+				add $t1, $t1, $s6  # Carregando em $t1 = endereÃ§o de vetor[j]
+				lw $t2, 0($t1)  # $t2 = valor de vetor[j]
+				sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
+				add $t3, $t3, $s6  # Carregando em $t3 = endereÃ§o de vetor[j+1] 
+				lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
+				slt $t0, $t2, $t4  # Se vetor[j] < vetor[j+1], $t0=1
+				bne $t0, 1, rept
+				swap:
+					add $t5, $t2, 0  # $t5 = vet[j] 
+					sw $t4, 0($t1)  # vet[j] = vet[j+1], posiÃ§Ã£o 0($t1) recebendo conteÃºdo de $t4  
+					sw $t5, 0($t3)  # vet[j+1] = vet[j], posiÃ§Ã£o 0($t3) recebendo conteÃºdo de $t5			
+				rept:
+					addi $s3, $s3, 1  # (j+1) = j+1
+					addi $s4, $s4, 1  # j = j + 1
+					j loop2
+			
+			end2:
+				addi $t6, $t6, 1  # i = i + 1
+				j loop1
+		end1:
+		jr $ra
