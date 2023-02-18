@@ -89,6 +89,23 @@
 	exit:
 .end_macro
 
+.macro print_array_char(%array, %size)
+	add $s0, %size, 0
+	li $t1, 0
+	la $t2, %array
+	loop_print:	
+			beq $s0, $t1, exit  # Se tamanho máximo do vetor ja foi alcançado, encerrar
+			sll $t3, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t3, $t3, $t2  # Carregando em $t1 = endereço de vetor[i] 
+			lb $a0, 0($t3)  # $t2 = valor de vetor[i]
+			li $v0, 11  # Informando que o syscall deve printar char
+			syscall
+			print_str(" | ")
+			addi $t1, $t1, 1  # Atualizando i = i+1
+			j loop_print
+	exit:
+.end_macro
+
 .macro sum_array(%array, %size, %sum)
 	add $s0, %size, 0
 	li $t1, 0  # Iterador
@@ -146,7 +163,7 @@
 			sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
 			add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
 			lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
-			
+			s
 			sgt $t0, $t2, $t4  # Se vetor[j] > vetor[j+1], $t0=1
 			bne $t0, 1, rept
 			swap:
@@ -213,6 +230,27 @@
 	end:
 .end_macro
 
+.macro print_matrix(%matrix, %n, %m) # imprime matriz com n linhas e m colunas
+	mul $s0, %n, %m
+	li $t1, 0
+	la $t2, %matrix
+	li $t7, 0
+	loop_print:	
+			beq $s0, $t1, exit  # Se tamanho máximo do vetor ja foi alcan�ado, encerrar
+			sll $t3, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t3, $t3, $t2  # Carregando em $t1 = endere�o de vetor[i] 
+			lb $a0, 0($t3)  # $a0 = valor de vetor[i]
+			li $v0, 11  # Informando que o syscall deve printar char
+			syscall
+			print_str(" ")
+			addi $t1, $t1, 1  # Atualizando i = i+1
+			addi $t7, $t7, 1
+			bne $t7, %m, loop_print
+			print_str("\n")
+			li $t7, 0
+			j loop_print
+		exit:
+.end_macro
 
 ## Uteis
 .macro fatorial(%n, %fat)
