@@ -16,8 +16,8 @@
       	print_str("\n\n Matriz de entrada\n")
       	print_matrix(Mat, $a1, $a2)
       	
-      	li $t0, 0
-      	li $t1, 0
+      	li $t0, 0 # i = 0
+      	li $t1, 0 # j = 0
       	li $s0, 0 # Contador de vogais
       	la $a0, Mat
       	jal upper_vogals
@@ -36,10 +36,20 @@
      	print_str("\n Diagonal da matriz de entrada de ordem n: ")
       	la $a0, Mat # Endereço base de Mat
       	jal diag
+      	
       	end:
+      	la $a0, Mat # Endereço base de Mat
+      	jal linhas_impar
+      	print_str("\n\n Matriz com linhas ímpares trocadas\n")
+      	print_matrix(Mat, $a1, $a2)
+      	la $a0 Mat 
+      	jal colunas_par
+      	print_str("\n Matriz com colunas pares trocadas\n")
+      	print_matrix(Mat, $a1, $a2)
+      	
       	mul $s0, $a1, $a2
  		jal sort_decrescente
-      	print_str("\n\n Estágio final da matriz\n")
+      	print_str("\n Estágio final da matriz ordenada\n")
       	print_matrix(Mat, $a1, $a2)
       	
       	terminate
@@ -198,6 +208,96 @@
   		move $v0, $a3 # Endereço base da matriz para retorno
    		jr $ra # Retorna  
    		
+   	## Procedimento que trocar o conteúdo das linhas de índice impar (1 troca com 3, 5 troca com 7, etc). Existe um
+   	## contador de repetições que controla quantas linhas precisam ser trocadas (ex: em uma matriz 4x4, apenas 2 linhas
+   	## são trocadas e portanto o procedimento ocorre uma unica vez). Uma vez estabelecido quantas vezes repetir e os intervalos
+   	## de troca, basta armazenar o valor de mat[i][j] e salvar depois em mat[i+2][j].
+   	linhas_impar:
+   		subi $sp, $sp, 4 # Espaço para 1 item na pilha
+   		sw $ra, ($sp) # Salva o retorno para a main
+   		move $a3, $a0 # aux = endereço base de mat
+   		div $s5, $a1, 4 # Dividindo nLinhas por 4 para saber quantas trocas serão realizadas
+      	li $t0, 1 # iniciando linhas em 1
+      	li $t1 0 # iniciando colunas em 0
+	limp:
+   		beqz $s5, end_while1
+   		swap2: 
+	   		jal indice # Calcula o endereço de mat[i][j]
+   			lb $s1, ($v0) # Valor em mat[i][j] 
+   			move $t3, $t0
+	   		add $t0, $t0, 2 # i + 2 
+   			jal indice
+   			lb $s2, ($v0) # Valor em mat[i+2][j]
+   			move $t0, $t3
+   			jal indice 
+   			sw $s2, ($v0) # mat[i][j] = mat[i+2][j]
+   			move $t3, $t0
+   			add $t0, $t0, 2 # i + 2 
+   			jal indice
+   			sw $s1, ($v0) # mat[i+2][j] = mat[i][j]
+   			move $t0, $t3
+   		
+   		ne:
+   			addi $t1, $t1, 1 # j++
+   			blt $t1, $a2, limp # if(j < ncol) goto e
+   			li $t1, 0 # j = 0
+   			
+			subi $s5, $s5, 1 # repetLinhas--
+			beqz $s5, limp # se ainda tem repetições, somar 4 na linha para chegar na próxima troca
+			addi $t0, $t0, 4 
+			li $t1, 0
+			j limp
+			end_while1:
+	   		lw $ra, ($sp) # Recupera o retorno para a main
+   			addi $sp, $sp, 4 # Libera o espaço na pilha
+  			move $v0, $a3 # Endereço base da matriz para retorno
+   			jr $ra # Retorna para a main
+   			
+   	## Procedimento que trocar o conteúdo das colunas de índice par (0 troca com 2, 4 troca com 6, etc). Existe um
+   	## contador de repetições que controla quantas colunas precisam ser trocadas (ex: em uma matriz 4x4, apenas 2 colunas
+   	## são trocadas e portanto o procedimento ocorre uma unica vez). Uma vez estabelecido quantas vezes repetir e os intervalos
+   	## de troca, basta armazenar o valor de mat[i][j] e salvar depois em mat[i][j+2].
+   	colunas_par:
+   		subi $sp, $sp, 4 # Espaço para 1 item na pilha
+   		sw $ra, ($sp) # Salva o retorno para a main
+   		move $a3, $a0 # aux = endereço base de mat
+   		div $s5, $a2, 4 # Dividindo nColunas por 4 para saber quantas trocas serão realizadas
+      	li $t0, 0 # iniciando linhas em 0
+      	li $t1 0 # iniciando colunas em 0
+	cpar:
+   		beqz $s5, end_while2
+   		swap3: 
+	   		jal indice # Calcula o endereço de mat[i][j]
+   			lb $s1, ($v0) # Valor em mat[i][j] 
+   			move $t3, $t1
+	   		add $t1, $t1, 2 # j + 2 
+   			jal indice
+   			lb $s2, ($v0) # Valor em mat[i][j+2]
+   			move $t1, $t3
+   			jal indice 
+   			sw $s2, ($v0) # mat[i][j] = mat[i][j+2]
+   			move $t3, $t1
+   			add $t1, $t1, 2 # j + 2 
+   			jal indice
+   			sw $s1, ($v0) # mat[i][j+2] = mat[i][j]
+   			move $t1, $t3
+   		
+   		ne2:
+   			addi $t0, $t0, 1 # i++
+   			blt $t0, $a1, cpar # if(i < nlin) goto e
+   			li $t0, 0 # i = 0
+   			
+			subi $s5, $s5, 1 # repetColunas--
+			beqz $s5, cpar # se ainda tem repetições, somar 4 na coluna para chegar na próxima troca
+			addi $t1, $t1, 4 
+			li $t0, 0
+			j cpar
+			end_while2:
+	   		lw $ra, ($sp) # Recupera o retorno para a main
+   			addi $sp, $sp, 4 # Libera o espaço na pilha
+  			move $v0, $a3 # Endereço base da matriz para retorno
+   			jr $ra # Retorna para a main
+   		
    	## Bubble sort de forma descrescente dos char na tabela ascii
 	sort_decrescente:
 		add $s5, $s0, -1  # $s5 = Tamanho do vetor -1 (pois são dois loops com essa condição de parada)
@@ -210,17 +310,17 @@
 			loop2:
 				beq $s4, $s5, end2	# Se j = tamanho do vetor -1
 				sll $t1, $s4, 2  # Reg temp $t1 = 4*j (indice atual do vetor)
-				add $t1, $t1, $s6  # Carregando em $t1 = endereÃ§o de vetor[j]
+				add $t1, $t1, $s6  # Carregando em $t1 = endereço de vetor[j]
 				lw $t2, 0($t1)  # $t2 = valor de vetor[j]
 				sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
-				add $t3, $t3, $s6  # Carregando em $t3 = endereÃ§o de vetor[j+1] 
+				add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
 				lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
 				slt $t0, $t2, $t4  # Se vetor[j] < vetor[j+1], $t0=1
 				bne $t0, 1, rept
 				swap:
 					add $t5, $t2, 0  # $t5 = vet[j] 
-					sw $t4, 0($t1)  # vet[j] = vet[j+1], posiÃ§Ã£o 0($t1) recebendo conteÃºdo de $t4  
-					sw $t5, 0($t3)  # vet[j+1] = vet[j], posiÃ§Ã£o 0($t3) recebendo conteÃºdo de $t5			
+					sw $t4, 0($t1)  # vet[j] = vet[j+1], posição 0($t1) recebendo conteúdo de $t4  
+					sw $t5, 0($t3)  # vet[j+1] = vet[j], posição 0($t3) recebendo conteúdo de $t5			
 				rept:
 					addi $s3, $s3, 1  # (j+1) = j+1
 					addi $s4, $s4, 1  # j = j + 1
