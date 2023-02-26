@@ -257,15 +257,33 @@
    	## contador de repetições que controla quantas colunas precisam ser trocadas (ex: em uma matriz 4x4, apenas 2 colunas
    	## são trocadas e portanto o procedimento ocorre uma unica vez). Uma vez estabelecido quantas vezes repetir e os intervalos
    	## de troca, basta armazenar o valor de mat[i][j] e salvar depois em mat[i][j+2].
+   	## Esse trecho precisou ser adaptado para comparar valores float na divisão, pois a menos matriz posivel para
+   	## que a troca de coluna pares seja possivel é de ordem Nx3, logo a divisão por 4 daria um 0.75 e não deve ser 
+   	## arredondado para divisão inteira com valor 0.
    	colunas_par:
    		subi $sp, $sp, 4 # Espaço para 1 item na pilha
    		sw $ra, ($sp) # Salva o retorno para a main
    		move $a3, $a0 # aux = endereço base de mat
-   		div $s5, $a2, 4 # Dividindo nColunas por 4 para saber quantas trocas serão realizadas
+   		
+   		## load de floats
+   		li $s7, 0
+		mtc1 $s7, $f0
+		cvt.s.w $f0, $f0
+   		li $s7, 1
+		mtc1 $s7, $f1
+		cvt.s.w $f1, $f1
+   		mtc1 $a2, $f2
+   		cvt.s.w $f2, $f2
+		li $s7, 4
+		mtc1 $s7, $f4
+		cvt.s.w $f4, $f4
+
+		div.s $f5, $f2, $f4 # divide nColunas por 4.0
       	li $t0, 0 # iniciando linhas em 0
       	li $t1 0 # iniciando colunas em 0
 	cpar:
-   		beqz $s5, end_while2
+		c.le.s $f5, $f0 # se valor float em f5 for menor igual a 0, goto end_while2
+		bc1t end_while2
    		swap3: 
 	   		jal indice # Calcula o endereço de mat[i][j]
    			lb $s1, ($v0) # Valor em mat[i][j] 
@@ -287,8 +305,10 @@
    			blt $t0, $a1, cpar # if(i < nlin) goto e
    			li $t0, 0 # i = 0
    			
-			subi $s5, $s5, 1 # repetColunas--
-			beqz $s5, cpar # se ainda tem repetições, somar 4 na coluna para chegar na próxima troca
+			sub.s $f5, $f5, $f1 	 # repetColunas--
+			
+			c.le.s $f5, $f0 # se valor float em f5 for menor igual a 0, goto cpar
+			bc1t cpar # se ainda tem repetições, somar 4 na coluna para chegar na próxima troca
 			addi $t1, $t1, 4 
 			li $t0, 0
 			j cpar
