@@ -5,6 +5,13 @@
 	syscall
 .end_macro
 
+.macro calloc(%size, %return)
+	li $v0, 9
+	la $a0, (%size)
+	syscall
+	la %return, ($v0) 
+.end_macro
+
 ## PRINTS
 .macro print_int(%x)
 	add $a0, %x, $zero  # Carregando $a0 com int %x a printar
@@ -14,7 +21,7 @@
 
 .macro print_float(%x)
 	mov.s $f12, %x  # Carregando $a0 com float %x a printar
-	addi $v0, $zero, 2  # Informando que o syscall deve printar int
+	li $v0, 2  # Informando que o syscall deve printar int
 	syscall
 .end_macro
 
@@ -35,15 +42,15 @@
 
 ## SCANS
 .macro scan_int(%a)
-	addi $v0, $zero, 5  # Informando que o syscall deverá ler um int
+	li $v0, 5  # Informando que o syscall deverá ler um int
 	syscall
 	add %a, $v0, $zero  # Armazenando A em $s0
 .end_macro
 
 .macro scan_float(%a)
-	addi $v0, $zero, 6  # Informando que o syscall deverá ler um float
+	li $v0, 6  # Informando que o syscall deverá ler um float
 	syscall
-	add %a, $f0, $zero  # Armazenando A em $s0
+	mov.s %a, $f0
 .end_macro
 
 .macro scan_char(%a)
@@ -73,6 +80,25 @@
 	exit:
 .end_macro
 
+.macro scan_array_din(%array, %size)
+	add $s7, %size, 0
+	li $t1, 0
+	li $t2, 0
+	loop_load:	
+			beq $s7, $t2, exit
+			sll $t4, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t4, $t4, %array  # Carregando em $t1 = endereço de vetor[i] 
+			print_str("v[")
+			print_int($t2)
+			print_str("] = ")
+			scan_float($f1)
+			s.s $f1, 0($t4)  # Armazenando valor real em $f1 na posição [i] $t4 do vetor
+			addi $t1, $t1, 1  # Iterador do vetor +1
+			addi $t2, $t2, 1  # Iterador estético +1
+			j loop_load
+	exit:
+.end_macro
+
 .macro print_array(%array, %size)
 	add $s0, %size, 0
 	li $t1, 0
@@ -83,6 +109,21 @@
 			add $t3, $t3, $t2  # Carregando em $t1 = endereço de vetor[i] 
 			lw $t4, 0($t3)  # $t2 = valor de vetor[i]
 			print_int($t4)
+			print_str(" | ")
+			addi $t1, $t1, 1  # Atualizando i = i+1
+			j loop_print
+	exit:
+.end_macro
+
+.macro print_array_din(%array, %size)
+	add $s0, %size, 0
+	li $t1, 0
+	loop_print:	
+			beq $s0, $t1, exit  # Se tamanho máximo do vetor ja foi alcançado, encerrar
+			sll $t3, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t3, $t3, %array  # Carregando em $t3 = endereço de vetor[i] 
+			l.s $f2, 0($t3)  # $t2 = valor de vetor[i]
+			print_float($f2)
 			print_str(" | ")
 			addi $t1, $t1, 1  # Atualizando i = i+1
 			j loop_print
@@ -370,4 +411,18 @@
 		# print_str("\nÉ SEMIPRIMO")
 		
 	return:	
+.end_macro
+
+.macro potencia(%x, %pot, %result) # n ^pot
+	addi $t3, %x, 0
+	addi $t4, %pot, 0
+	li $t5, 0 # contador
+	li $t6, 1 #resultado
+	loop:	
+		beq $t5, $t4, end
+		mul $t6, $t6, $t3
+		add $t5, $t5, 1
+		j loop
+	end:
+	la %result ($t6)
 .end_macro
