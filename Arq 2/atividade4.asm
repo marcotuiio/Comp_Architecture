@@ -38,6 +38,9 @@
       	jal diag
       	
       	end:
+      	la $a0, Mat
+      	jal palindromo
+      	
       	la $a0, Mat # Endereço base de Mat
       	jal linhas_impar
       	print_str("\n\n Matriz com linhas ímpares trocadas\n")
@@ -192,6 +195,8 @@
 		subi $sp, $sp, 4 # Espaço para 1 item na pilha
    		sw $ra, ($sp) # Salva o retorno para a main
    		move $a3, $a0 # aux = endereço base de mat
+   		li $t0, 0
+   		li $t1, 0
 	d:
 		jal indice # Calcula o endereço de mat[i][j]
    		lb $a0, ($v0) # Valor em mat[i][j]
@@ -200,13 +205,54 @@
    		
    		prox:
    		addi $t0, $t0, 1 # i++
-   		add $t1, $t0, 0 # Garantindo a diagonal já que i == j
+   		move $t1, $t0 # Garantindo a diagonal já que i == j
    		blt $t0, $a1, d # if(i < nlin) goto c_out
-   		li $t0, 0 # i = 0
 		lw $ra, ($sp) # Recupera o retorno para a main
    		addi $sp, $sp, 4 # Libera o espaço na pilha
   		move $v0, $a3 # Endereço base da matriz para retorno
    		jr $ra # Retorna  
+   		
+   	## Procedimento que vai carregar, em todas as linhas, o elemento na coluna 0 e o na coluna M-1 e verificar se 
+   	## sao iguai. Caso sejam iguais carrega ao na coluna 1 e na coluna M-2 ate que a linha seja toda comparada ou 
+   	## ate o momento que para alguma comparacao os valores sejam diferentes
+   	palindromo:
+   		subi $sp, $sp, 4 # Espaço para 1 item na pilha
+   		sw $ra, ($sp) # Salva o retorno para a main
+   		move $a3, $a0 # aux = endereço base de mat
+   		li $t0, 0 # linha i
+   		li $t1, 0 # coluna j 
+   		li $t3, 0 # linha i
+   		sub $t4, $a2, 1  # coluna k M-1
+   		li $s4, 0 # contador
+   	p:
+   		jal indice
+   		lb $a0, ($v0) # Valor em mat[i][j]
+   		jal indice_aux
+   		lb $s2, ($t5) # Valor em mat[i][k]
+   		bne $a0, $s2, next_line # sao diferentes vai pra proxima linha
+   		addi $s4, $s4, 1 # contador ao final deve ser igual a qntd de colunas caso seja uma linha palindromo
+   		
+   		bne $s4, $a2, next_col
+   		print_str("\n Palindromo na linha: ")
+   		print_int($t0)
+   		la $a0, Mat
+   		
+   		next_col:
+			addi $t1, $t1, 1 # j++
+			subi $t4, $t4, 1 # k--
+   			blt $t1, $a2, p # if(j < ncol) goto u
+   		next_line:
+   			li $s4, 0 # reseta contador
+   			li $t1, 0 # j = 0
+   			subi $t4, $a2, 1 # resetando k para coluna M-1
+   			addi $t0, $t0, 1 # i++
+   			addi $t3, $t3, 1 
+   			blt $t0, $a1, p # if(i < nlin) goto u
+   			li $t0, 0 # i = 0
+	   		lw $ra, ($sp) # Recupera o retorno para a main
+   			addi $sp, $sp, 4 # Libera o espaço na pilha
+  			move $v0, $a3 # Endereço base da matriz para retorno
+   			jr $ra # Retorna para a main
    		
    	## Procedimento que trocar o conteúdo das linhas de índice impar (1 troca com 3, 5 troca com 7, etc). Existe um
    	## contador de repetições que controla quantas linhas precisam ser trocadas (ex: em uma matriz 4x4, apenas 2 linhas
