@@ -305,6 +305,30 @@
 	end:
 .end_macro
 
+.macro has_element_float(%array, %size, %element, %result)
+	add $s7, %size, 0
+	mov.s $f0, %element
+	li $t0, 0
+	.data
+		zeroFloat: .float 0.0
+	.text
+	loop_load:	
+			beq $s7, $t0, exit
+			sll $t7, $t0, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
+			add $t7, $t7, %array  # Carregando em $t1 = endereço de vetor[i]
+			l.s $f8, 0($t7)  # $t2 = valor de vetor[i]
+			c.eq.s $f8, $f0
+			bc1t equals
+			addi $t0, $t0, 1  # Iterador do vetor +1
+			j loop_load
+	equals:
+		mov.s %result, $f8
+		j end
+	exit:
+		lwc1 %result, zeroFloat
+	end:
+.end_macro
+
 .macro print_matrix(%matrix, %n, %m) # imprime matriz com n linhas e m colunas
 	mul $s0, %n, %m
 	li $t1, 0
