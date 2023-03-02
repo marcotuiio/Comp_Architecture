@@ -5,7 +5,7 @@
 	
 .text
 	main:
-		print_str("\nInforme a quantidade N de elementos dos vetor A e B: ")
+		print_str("\nInforme a quantidade N de elementos dos vetores A e B: ")
 		scan_int($s1)
 		mul $s2, $s1, 4
 		calloc($s2, $s3) # VetA alocado dinamicamente com N * 4 bytes 

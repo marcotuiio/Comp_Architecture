@@ -333,7 +333,7 @@
 	li $t1, 1
 	
 	zero_um:
-		beq $t0, 0, exit  # Se número passado for igual a zero ou 1, dispensa loop
+		beq $t0, 0, exit  # Se numero passado for igual a zero ou 1, dispensa loop
 		beq $t0, 1, exit
 	
 	loop:	
@@ -376,53 +376,19 @@
 	end:
 .end_macro
 
-.macro semi_primes(%n, %result)
-	add $t0, %n, 0  # em $t0 está o número a ser verificado
-	li $t1, 0  # $t1 é um contador
-	li $t2, 2  # iterador i iniciando em 2
-	li $t5, 2
-	
-	for:
-		mul $t3, $t2, $t2  # para flag de parada do for 
-		sgt $t4, $t0, $t3  # sair se i*i chegar em num ($t3<=$t2)
-		bne $t4, 1, exit1  
-		sgt $t4, $t5, $t1  # se contador < 2, $t4 = 1 
-		bne $t4, 1, exit1 # sair se contador chegar em 2 ($t1<2) 
-		while:
-			div $t0, $t2  # dividindo num / i
-			mfhi $t4  # resto da divisão num / i em $t4
-			bne $t4, $zero, repet  # enquanto resto de num / i = 0
-			mflo $t0  # $t0 passa a ser igual ao resultado da divisão anterior 
-			add $t1, $t1, 1  # contador = contador + 1, computando qntd de números primos
-			j while
-		repet:
-			add $t2, $t2, 1  # i = i + 1
-			j for	
-	exit1:
-	
-	sgt $t5, $t0, 1  # se $t0 > 1, $t5 = 1
-	bne $t5, 1, sets
-	add $t1, $t1, 1  # contador = contador + 1
-	
-	sets:
-		la %result, ($zero)  # deixando por garantia resultado falso, retorna 0 no endereço de result
-		bne $t1, 2, return  # se contador = 2 então é semiprimo 
-		la %result, 1  # retorna 1 no endereço passado de resultado
-		# print_str("\nÉ SEMIPRIMO")
-		
-	return:	
-.end_macro
-
 .macro potencia(%x, %pot, %result) # n ^pot
-	addi $t3, %x, 0
+	mov.s $f3, %x
 	addi $t4, %pot, 0
 	li $t5, 0 # contador
-	li $t6, 1 #resultado
+	.data
+		oneFloat: .float 1.0
+	.text
+	lwc1 $f5, oneFloat
 	loop:	
 		beq $t5, $t4, end
-		mul $t6, $t6, $t3
+		mul.s $f5, $f5, $f3
 		add $t5, $t5, 1
 		j loop
 	end:
-	la %result ($t6)
+	mov.s %result, $f5
 .end_macro
