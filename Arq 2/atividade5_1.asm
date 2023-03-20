@@ -8,7 +8,7 @@
 		calloc($s2, $s3) # VetA alocado dinamicamente com N * 4 bytes 
 		scan_array_din($s3, $s1)
 		calloc($s2, $s4) # Vetor auxiliar para nao contar elementos que ja foram contados
-		#print_array_din($s3, $s1)
+		init_array($s4, $s1)
 		
 		li $t1, 0  # Iterador externo
 		li $t5, 0  # Iterador do vetor auxiliar

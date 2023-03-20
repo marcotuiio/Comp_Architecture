@@ -26,7 +26,7 @@
 			add $t4, $t4, $s3  # Carregando em $t1 = endereço de vetor[i] 
 			l.s $f5, 0($t4)  # $t2 = valor de vetor[i]
 			add.s $f3, $f3, $f5  # Amazenando no endereço fornecido a soma dos elementos do vetor
-			addi $t1, $t1, 1  # Atualizando i = i+1
+			addi $t1, $t1, 2  # Atualizando i = i+1
 			j par
 		exit1:
 		
@@ -38,7 +38,7 @@
 			add $t4, $t4, $s4  # Carregando em $t1 = endereço de vetor[i] 
 			l.s $f5, 0($t4)  # $t2 = valor de vetor[i]
 			add.s $f4, $f4, $f5  # Amazenando no endereço fornecido a soma dos elementos do vetor
-			addi $t1, $t1, 1  # Atualizando i = i+1
+			addi $t1, $t1, 2  # Atualizando i = i+1
 			j impar
 		exit2:
 		

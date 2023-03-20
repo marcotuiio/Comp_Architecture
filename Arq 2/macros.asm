@@ -310,7 +310,7 @@
 	mov.s $f0, %element
 	li $t0, 0
 	.data
-		zeroFloat: .float 0.0
+		errorFloat: .float -9999.0
 	.text
 	loop_load:	
 			beq $s7, $t0, exit
@@ -325,7 +325,7 @@
 		mov.s %result, $f8
 		j end
 	exit:
-		lwc1 %result, zeroFloat
+		lwc1 %result, errorFloat
 	end:
 .end_macro
 
@@ -349,6 +349,23 @@
 			li $t7, 0
 			j loop_print
 		exit:
+.end_macro
+
+.macro init_array(%array, %size)
+
+    li $t5, 0 # inicializa iterador com 0
+    .data
+		bigFloat: .float 9999.0
+	.text
+	lwc1 $f5, bigFloat
+    loop:
+        beq $t5, %size, exit # verifica se iterador >= tamanho do vetor, caso verdadeiro, pula para a saída
+        sll $t7, $t5, 2 # multiplica iterador por 4 (tamanho de uma palavra) para obter o deslocamento de byte correspondente à posição do vetor
+        add $t7, $t7, %array # adiciona deslocamento à base do vetor para obter o endereço da posição atual
+        s.s $f5, 0($t7) # armazena o valor na posição atual
+        addi $t5, $t5, 1 # incrementa o iterador
+        j loop # pula para o início do loop
+    exit:
 .end_macro
 
 ## Uteis
