@@ -42,9 +42,9 @@
 			j impar
 		exit2:
 		
-		print_str("\n Soma das posições pares de A = ")
+		print_str("\n Soma das posicoes pares de A = ")
 		print_float($f3)
-		print_str("\n Soma das posições impares de B = ")
+		print_str("\n Soma das posicoes impares de B = ")
 		print_float($f4)
 		sub.s $f5, $f3, $f4
 		print_str("\n A - B = ")

@@ -6,19 +6,19 @@
 .text
 	main:
 		li $a1, 4
-		la $a0, Mat # Endereço base de Mat
-      	addi $a2, $a1, 0 # Número de colunas
+		la $a0, Mat # Endereï¿½o base de Mat
+      	addi $a2, $a1, 0 # Nï¿½mero de colunas
       	jal leitura # leitura(mat, nlin, ncol)
-      	move $a0, $v0 # Endereço da matriz lida
+      	move $a0, $v0 # Endereï¿½o da matriz lida
       	jal escrita # escrita(mat, nlin, ncol)
 		
-		li $s0, 0 # Soma dos valores na diagonal secundária
+		li $s0, 0 # Soma dos valores na diagonal secundï¿½ria
 		li $s1, 0 # Aux para armazenar a soma de i + j
 		
 		move $a0, $v0
 		jal diag_secund
 		
-		print_str("\n A soma dos elementos da diagonal secundária é ")
+		print_str("\n A soma dos elementos da diagonal secundaria: ")
       	print_int($s0)
       	
       	terminate
@@ -27,23 +27,23 @@
 		mul $v0, $t0, $a2 # i * ncol
    		add $v0, $v0, $t1 # (i * ncol) + j
    		sll $v0, $v0, 2 # [(i * ncol) + j] * 4 (inteiro)
-   		add $v0, $v0, $a3 # Soma o endereço base de mat
+   		add $v0, $v0, $a3 # Soma o endereï¿½o base de mat
    		jr $ra # Retorna para o caller
    
 	leitura:
-   		subi $sp, $sp, 4 # Espaço para 1 item na pilha
+   		subi $sp, $sp, 4 # Espaï¿½o para 1 item na pilha
    		sw $ra, ($sp) # Salva o retorno para a main
-   		move $a3, $a0 # aux = endereço base de mat
+   		move $a3, $a0 # aux = endereï¿½o base de mat
 	l:
 		print_str(" Insira o valor de Mat[") 
 		print_int($t0)
    		print_str("][")
    		print_int($t1)
    		print_str("]: ")
-   		li $v0, 5 # Código de leitura de inteiro
+   		li $v0, 5 # Cï¿½digo de leitura de inteiro
    		syscall # Leitura do valor (retorna em $v0)
    		move $t2, $v0 # aux = valor lido
-   		jal indice # Calcula o endereço de mat[i][j]
+   		jal indice # Calcula o endereï¿½o de mat[i][j]
    		sw $t2, ($v0) # mat[i][j] = aux
    		addi $t1, $t1, 1 # j++
    		blt $t1, $a2, l # if(j < ncol) goto l
@@ -52,18 +52,18 @@
    		blt $t0, $a1, l # if(i < nlin) goto l
    		li $t0, 0 # i = 0
    		lw $ra, ($sp) # Recupera o retorno para a main
-   		addi $sp, $sp, 4 # Libera o espaço na pilha
-   		move $v0, $a3 # Endereço base da matriz para retorno
+   		addi $sp, $sp, 4 # Libera o espaï¿½o na pilha
+   		move $v0, $a3 # Endereï¿½o base da matriz para retorno
    		jr $ra # Retorna para a main
    
 	escrita:
-   		subi $sp, $sp, 4 # Espaço para 1 item na pilha
+   		subi $sp, $sp, 4 # Espaï¿½o para 1 item na pilha
    		sw $ra, ($sp) # Salva o retorno para a main
-   		move $a3, $a0 # aux = endereço base de mat
+   		move $a3, $a0 # aux = endereï¿½o base de mat
 	e:
-		jal indice # Calcula o endereço de mat[i][j]
+		jal indice # Calcula o endereï¿½o de mat[i][j]
    		lw $a0, ($v0) # Valor em mat[i][j]
-   		li $v0, 1 # Código de impressão de inteiro
+   		li $v0, 1 # Cï¿½digo de impressï¿½o de inteiro
    		syscall # Imprime mat[i][j]
    		print_str(" ")
    		addi $t1, $t1, 1 # j++
@@ -74,23 +74,23 @@
    		blt $t0, $a1, e # if(i < nlin) goto e
    		li $t0, 0 # i = 0
 	   	lw $ra, ($sp) # Recupera o retorno para a main
-   		addi $sp, $sp, 4 # Libera o espaço na pilha
-  		move $v0, $a3 # Endereço base da matriz para retorno
+   		addi $sp, $sp, 4 # Libera o espaï¿½o na pilha
+  		move $v0, $a3 # Endereï¿½o base da matriz para retorno
    		jr $ra # Retorna para a main
    		
    		## A diagonal principal da matriz de ordem n tem elementos em que i + j = n + 1
-   		## Neste exemplo a ordem da matriz é de ordem 4, a comparação será feita se i+j do 
-   		## elemento em questão é igual a 5, se for a soma é realizada, se não a matriz continua
-   		## até o fim
+   		## Neste exemplo a ordem da matriz ï¿½ de ordem 4, a comparaï¿½ï¿½o serï¿½ feita se i+j do 
+   		## elemento em questï¿½o ï¿½ igual a 5, se for a soma ï¿½ realizada, se nï¿½o a matriz continua
+   		## atï¿½ o fim
    		diag_secund:
-   			subi $sp, $sp, 4 # Espaço para 1 item na pilha
+   			subi $sp, $sp, 4 # Espaï¿½o para 1 item na pilha
    			sw $ra, ($sp) # Salva o retorno para a main
-   			move $a3, $a0 # aux = endereço base de mat
+   			move $a3, $a0 # aux = endereï¿½o base de mat
 		ds:
-			jal indice # Calcula o endereço de mat[i][j]
+			jal indice # Calcula o endereï¿½o de mat[i][j]
    			lw $a0, ($v0) # Valor em mat[i][j]
-   			add $t5, $t0, 1 # Posição aux de i
-   			add $t6, $t1, 1 # Posição aux de j
+   			add $t5, $t0, 1 # Posiï¿½ï¿½o aux de i
+   			add $t6, $t1, 1 # Posiï¿½ï¿½o aux de j
    			add $s1, $t5, $t6
    			bne $s1, 5, next
    			add $s0, $s0, $a0
@@ -102,6 +102,6 @@
    			blt $t0, $a1, ds # if(i < nlin) goto e
    			li $t0, 0 # i = 0
 	   		lw $ra, ($sp) # Recupera o retorno para a main
-   			addi $sp, $sp, 4 # Libera o espaço na pilha
-  			move $v0, $a3 # Endereço base da matriz para retorno
+   			addi $sp, $sp, 4 # Libera o espaï¿½o na pilha
+  			move $v0, $a3 # Endereï¿½o base da matriz para retorno
    			jr $ra # Retorna para a main	

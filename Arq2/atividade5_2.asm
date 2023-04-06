@@ -7,9 +7,9 @@
 	
 .text
 	main:
-		print_str("\nInforme a quantidade N de termos da série para utilizar na aproximação: ")
+		print_str("\nInforme a quantidade N de termos da serie para utilizar na aproximacao: ")
 		scan_int($s1)
-		print_str("Informe um angulo X, em graus, para calcular uma aproximação do cos(X): ")
+		print_str("Informe um angulo X, em graus, para calcular uma aproximacao do cos(X): ")
 		scan_float($f1)
 		mov.s $f8, $f1
 		

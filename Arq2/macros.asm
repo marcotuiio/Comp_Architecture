@@ -35,7 +35,7 @@
 .end_macro
 
 .macro print_char(%c)
-	lb $a0, %c  # Carregando $a0 com o char %c a printar
+	move $a0, %c  # Carregando $a0 com o char %c a printar
 	li $v0, 11  # Informando que o syscall deve printar char
 	syscall
 .end_macro 
@@ -335,9 +335,9 @@
 	la $t2, %matrix
 	li $t7, 0
 	loop_print:	
-			beq $s0, $t1, exit  # Se tamanho mÃ¡ximo do vetor ja foi alcançado, encerrar
+			beq $s0, $t1, exit  # Se tamanho mÃ¡ximo do vetor ja foi alcanï¿½ado, encerrar
 			sll $t3, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
-			add $t3, $t3, $t2  # Carregando em $t1 = endereço de vetor[i] 
+			add $t3, $t3, $t2  # Carregando em $t1 = endereï¿½o de vetor[i] 
 			lb $a0, 0($t3)  # $a0 = valor de vetor[i]
 			li $v0, 11  # Informando que o syscall deve printar char
 			syscall
@@ -359,12 +359,12 @@
 	.text
 	lwc1 $f5, bigFloat
     loop:
-        beq $t5, %size, exit # verifica se iterador >= tamanho do vetor, caso verdadeiro, pula para a saída
-        sll $t7, $t5, 2 # multiplica iterador por 4 (tamanho de uma palavra) para obter o deslocamento de byte correspondente à posição do vetor
-        add $t7, $t7, %array # adiciona deslocamento à base do vetor para obter o endereço da posição atual
-        s.s $f5, 0($t7) # armazena o valor na posição atual
+        beq $t5, %size, exit # verifica se iterador >= tamanho do vetor, caso verdadeiro, pula para a saï¿½da
+        sll $t7, $t5, 2 # multiplica iterador por 4 (tamanho de uma palavra) para obter o deslocamento de byte correspondente ï¿½ posiï¿½ï¿½o do vetor
+        add $t7, $t7, %array # adiciona deslocamento ï¿½ base do vetor para obter o endereï¿½o da posiï¿½ï¿½o atual
+        s.s $f5, 0($t7) # armazena o valor na posiï¿½ï¿½o atual
         addi $t5, $t5, 1 # incrementa o iterador
-        j loop # pula para o início do loop
+        j loop # pula para o inï¿½cio do loop
     exit:
 .end_macro
 
@@ -432,4 +432,87 @@
 		j loop
 	end:
 	mov.s %result, $f5
+.end_macro
+
+## FILES
+.macro fopen(%file_name, %file_descriptor)
+	.data
+		Error: .asciiz "Arquivo nao encontrado!\n"
+		file: .asciiz %file_name
+	.text
+	la $a0, file
+	li $a1, 0 # somente leitura
+	li $v0, 13
+	syscall
+	bgez $v0, fim
+	erro: 
+		la $a0, Error
+		li $v0, 4
+		syscall
+		li $v0, 10
+		syscall
+	fim:
+		move %file_descriptor, $v0
+.end_macro
+
+.macro fclose(%file_descriptor)
+	move $a0, %file_descriptor
+	li $v0, 16
+	syscall
+.end_macro
+
+.macro count_char(%file_descriptor, %result)
+	.data
+		buffer: .asciiz " "
+	.text
+		move $a0, %file_descriptor
+		la $a1, buffer
+		li $a2, 1
+		count:
+			li $v0, 14
+			syscall
+			addi $t0, $t0, 1
+			bnez $v0, count # (if !EOF goto count)
+			subi $t0, $t0, 1 # desconsiderando EOF
+		move %result, $t0
+.end_macro
+
+.macro fscanf(%file_descriptor, %array_result)
+	.data
+		buffer: .asciiz " "
+	.text
+	move $a0, %file_descriptor
+	la $a1, buffer
+	li $a2, 1
+	li $t1, 0
+		read:
+			li $v0, 14
+			syscall
+			beqz $v0, return_eof # (if !EOF goto count)
+			lb $t0, ($a1) # lÃª o primeiro dÃ­gito do nÃºmero
+			beq $t0, 32, read # verifica se o dÃ­gito Ã© um espaÃ§o em branco
+			li $t1, 0
+			to_int:
+				subi $t0, $t0, 48
+				mul $t1, $t1, 10
+				add $t1, $t1, $t0
+				
+				li $v0, 14
+				syscall
+				beqz $v0, return_eof # (if !EOF goto count)				
+				lb $t0, ($a1) # lÃª o prÃ³ximo dÃ­gito do nÃºmero
+				beq $t0, 32, save_number # verifica se o dÃ­gito Ã© um espaÃ§o em branc
+
+				j to_int
+
+			save_number:
+				# sll $t4, $t3, 2
+				# add $t4, $t4, $s1
+				# sw $t1, 0($t4)
+				# addi $t3, $t3, 1 # reinicializa a variavel do numero lido
+				print_int($t1)
+				li $t1, 0
+				j read
+
+		return_eof:
 .end_macro

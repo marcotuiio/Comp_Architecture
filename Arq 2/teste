@@ -1,9 +1,0 @@
-.include "macros.asm"
-
-.text
-	main:
-		print_str("Informe um float: ")
-		scan_float($f4)
-		print_str("\nFloat lido: ")
-		print_float($f4)
-		
