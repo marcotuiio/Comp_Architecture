@@ -492,6 +492,9 @@
 			lb $t0, ($a1) # lê o primeiro dígito do número
 			beq $t0, 32, read # verifica se o dígito é um espaço em branco
 			li $t1, 0
+			bne $t0, 45, to_int # verifica se o dígito é um sinal de negativo
+			li $t7, 1
+			j read
 			to_int:
 				subi $t0, $t0, 48
 				mul $t1, $t1, 10
@@ -510,7 +513,12 @@
 				# add $t4, $t4, $s1
 				# sw $t1, 0($t4)
 				# addi $t3, $t3, 1 # reinicializa a variavel do numero lido
-				print_int($t1)
+				bne $t7, 0, p
+				negativo: 
+					mul $t1, $t1, -1
+				p:
+					print_int($t1)
+				li $t7, 0
 				li $t1, 0
 				j read
 
