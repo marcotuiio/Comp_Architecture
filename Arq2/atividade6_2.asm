@@ -19,48 +19,48 @@
 		jal print_array
 		jal fclose
 		
-		# li $t2, -1
-		# jal maior
-		# print_str("\n\n A) Maior numero do vetor: ")
-		# print_int($t2)
+		li $t2, -1
+		jal maior
+		print_str("\n\n A) Maior numero do vetor: ")
+		print_int($t2)
 
-		# li $t2, 9999
-		# jal menor
-		# print_str("\n\n B) Menor numero do vetor: ")
-		# print_int($t2)
+		li $t2, 9999
+		jal menor
+		print_str("\n\n B) Menor numero do vetor: ")
+		print_int($t2)
 
-		# li $t2, 0 # qntd impares
-		# li $t3, 0 # qntd pares
-		# jal impares_pares
-		# print_str("\n\n C) Quantidade de numeros impares: ")
-		# print_int($t2)
-		# print_str("\n\n D) Quantidade de numeros pares: ")
-		# print_int($t3)
+		li $t2, 0 # qntd impares
+		li $t3, 0 # qntd pares
+		jal impares_pares
+		print_str("\n\n C) Quantidade de numeros impares: ")
+		print_int($t2)
+		print_str("\n\n D) Quantidade de numeros pares: ")
+		print_int($t3)
 
-		# li $t2, 0 # soma
-		# jal soma
-		# print_str("\n\n E) Soma dos numeros do vetor: ")
-		# print_int($t2)
+		li $t2, 0 # soma
+		jal soma
+		print_str("\n\n E) Soma dos numeros do vetor: ")
+		print_int($t2)
 
-		# jal sort_crescente
-		# print_str("\n\n F) Vetor ordenado em ordem crescente: ")
-		# jal print_array
+		jal sort_crescente
+		print_str("\n\n F) Vetor ordenado em ordem crescente: ")
+		jal print_array
 
-		# jal sort_decrescente
-		# print_str("\n\n G) Vetor ordenado em ordem decrescente: ")
-		# jal print_array
+		jal sort_decrescente
+		print_str("\n\n G) Vetor ordenado em ordem decrescente: ")
+		jal print_array
 
-		# li $t2, 1 # produto
-		# jal produto
-		# print_str("\n\n H) Produto dos numeros do vetor: ")
-		# print_int($t2)
+		li $t2, 1 # produto
+		jal produto
+		print_str("\n\n H) Produto dos numeros do vetor: ")
+		print_int($t2)
 
-		# jal fopen
-		# li $t0, 0 # contador
-		# jal count_chars
-		# print_str("\n\n I) Numero de characters no arquivo: ")
-		# print_int($t0)
-		# jal fclose
+		jal fopen
+		li $t0, 0 # contador
+		jal count_chars
+		print_str("\n\n I) Numero de characters no arquivo: ")
+		print_int($t0)
+		jal fclose
 
 		terminate
 		
@@ -106,8 +106,9 @@
 			syscall
 			beqz $v0, return_eof # (if !EOF goto count)
 			lb $t0, ($a1) # lê o primeiro dígito do número
-            beq $t0, 10, read # verifica se o dígito é o fim de linha
+			beq $t0, 13, read
             beq $t0, 32, read # verifica se o dígito é um espaço em branco
+            beq $t0, 10, read # verifica se o dígito é o fim de linha
 			li $t1, 0
 			bne $t0, 45, to_int # verifica se o dígito é um sinal de negativo
 			li $t7, 1 # se for, seta a variavel de sinal para 1
@@ -116,12 +117,15 @@
 				subi $t0, $t0, 48
 				mul $t1, $t1, 10
 				add $t1, $t1, $t0
+
 				li $v0, 14
 				syscall
-				beqz $v0, save_number # (if EOF goto save_number and return_eof)				
+				beqz $v0, save_number # (if EOF goto save_number and return_eof)
 				lb $t0, ($a1) # lê o próximo dígito do número
-				beq $t0, 32, save_number # verifica se o digito e espaco em branco
+				beq $t0, 13, save_number
 				beq $t0, 10, save_number # verifica se o digito e fim de linha
+				beq $t0, 32, save_number # verifica se o digito e espaco em branco
+				
 				j to_int
 
 			save_number:
