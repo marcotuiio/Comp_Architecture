@@ -434,6 +434,46 @@
 	mov.s %result, $f5
 .end_macro
 
+
+.macro all_primes(%n, %vetor)
+	move $s1, %n
+	li $t0, 2 
+	sll $t4, $s3, 2 
+	add $t4, $t4, $s2
+	sw $t0, 0($t4)
+	addi $s3, $s3, 1
+
+	li $t0, 3
+	sll $t4, $s3, 2 
+	add $t4, $t4, $s2
+	sw $t0, 0($t4)
+	addi $s3, $s3, 1
+
+	li $t0, 5  # numero inicial a ser testado que funciona nesse processo
+	li $t1, 2  # divisor
+	subi $t2, $t0, 1 # limite do loop
+	primo: 
+		bgt $t0, $s1, fim
+		bge $t1, $t2, next
+		div $t0, $t1 # n atual / divisor
+		mfhi $t3 # resto da divisao
+		beqz $t3, next # se resto for zero, nao eh primo
+		addi $t1, $t1, 1 # proximo divisor
+		bne $t1, $t2, primo
+		salvar:
+			sll $t4, $s3, 2 
+			add $t4, $t4, $s2
+			sw $t0, 0($t4)
+			addi $s3, $s3, 1 
+		next:
+			addi $t0, $t0, 1 # proximo numero a ser testado
+			li $t1, 2 # divisor
+			sub $t2, $t0, 1 # limite do loop 
+			j primo
+	fim:
+		move %vetor, $s2
+.end_macro
+
 ## FILES
 .macro fopen(%file_name, %file_descriptor)
 	.data
@@ -490,6 +530,9 @@
 			syscall
 			beqz $v0, return_eof # (if !EOF goto count)
 			lb $t0, ($a1) # lê o primeiro dígito do número
+			
+			beq $t0, 10, save_number # verifica se o dígito é um \n
+			beq $t0, 13, read # verifica se o dígito é um \r
 			beq $t0, 32, read # verifica se o dígito é um espaço em branco
 			li $t1, 0
 			bne $t0, 45, to_int # verifica se o dígito é um sinal de negativo
@@ -504,6 +547,8 @@
 				syscall
 				beqz $v0, return_eof # (if !EOF goto count)				
 				lb $t0, ($a1) # lê o próximo dígito do número
+				beq $t0, 10, save_number # verifica se o dígito é um \n
+				beq $t0, 13, save_number # verifica se o dígito é um \r
 				beq $t0, 32, save_number # verifica se o dígito é um espaço em branc
 
 				j to_int
@@ -512,7 +557,7 @@
 				# sll $t4, $t3, 2
 				# add $t4, $t4, $s1
 				# sw $t1, 0($t4)
-				# addi $t3, $t3, 1 # reinicializa a variavel do numero lido
+				# addi $t3, $t3, 1 
 				bne $t7, 0, p
 				negativo: 
 					mul $t1, $t1, -1

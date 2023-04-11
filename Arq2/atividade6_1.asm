@@ -15,7 +15,7 @@
 		la $s1, vetor
 		li $s2, 0 # indice do vetor
 		jal fscanf
-		print_str("\n\n Vetor lido de dados1.txt: ")
+		print_str("\n\n Numeros lidos de dados1.txt: ")
 		jal print_array
 		jal fclose
 		
@@ -106,6 +106,7 @@
 			syscall
 			beqz $v0, return_eof # (if !EOF goto count)
 			lb $t0, ($a1) # lê o primeiro dígito do número
+			beq $t0, 13, read # verifica se o e cariage return
 			beq $t0, 32, read # verifica se o dígito é um espaço em branco
 			li $t1, 0
 			bne $t0, 45, to_int # verifica se o dígito é um sinal de negativo

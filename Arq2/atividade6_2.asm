@@ -15,7 +15,7 @@
 		la $s1, vetor
 		li $s2, 0 # indice do vetor
 		jal fscanf
-		print_str("\n\n Vetor lido de dados2.txt: ")
+		print_str("\n\n Numeros lidos de dados2.txt: ")
 		jal print_array
 		jal fclose
 		
@@ -24,7 +24,7 @@
 		print_str("\n\n A) Maior numero do vetor: ")
 		print_int($t2)
 
-		li $t2, 9999
+		li $t2, 99999
 		jal menor
 		print_str("\n\n B) Menor numero do vetor: ")
 		print_int($t2)
