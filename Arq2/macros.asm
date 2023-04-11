@@ -481,13 +481,33 @@
 .end_macro
 
 ## FILES
-.macro fopen(%file_name, %file_descriptor)
+.macro fopen_read(%file_name, %file_descriptor)
 	.data
 		Error: .asciiz "Arquivo nao encontrado!\n"
 		file: .asciiz %file_name
 	.text
 	la $a0, file
 	li $a1, 0 # somente leitura
+	li $v0, 13
+	syscall
+	bgez $v0, fim
+	erro: 
+		la $a0, Error
+		li $v0, 4
+		syscall
+		li $v0, 10
+		syscall
+	fim:
+		move %file_descriptor, $v0
+.end_macro
+
+.macro fopen_write(%file_name, %file_descriptor)
+	.data
+		Error: .asciiz "Arquivo nao encontrado!\n"
+		file: .asciiz %file_name
+	.text
+	la $a0, file
+	li $a1, 9
 	li $v0, 13
 	syscall
 	bgez $v0, fim
