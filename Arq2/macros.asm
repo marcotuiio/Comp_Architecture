@@ -59,6 +59,13 @@
 	add %a, $v0, $zero  # Armazenando A em $s0
 .end_macro
 
+.macro scan_str(%input, %size)
+	li $v0, 8  # Informando que o syscall deverá ler uma string
+	move $a0, %input  # Carregando em $a0 o endereço de memória da string a ser lida
+	move $a1, %size  # Carregando em $a1 o tamanho máximo da string a ser lida
+	syscall
+.end_macro
+
 ## ARRAYS
 .macro scan_array(%array, %size)
 	add $s0, %size, 0
@@ -433,7 +440,6 @@
 	end:
 	mov.s %result, $f5
 .end_macro
-
 
 .macro all_primes(%n, %vetor)
 	move $s1, %n

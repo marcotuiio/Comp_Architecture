@@ -2,7 +2,6 @@
 
 .data 
     FilePath: .asciiz "C:\\Users\\marco\\Desktop\\UEL\\Comp_Architecture\\Arq2\\primos_gemeos.txt"
-    Error: .asciiz "Erro ao abrir o arquivo!\n"
 .text
 
     main:
@@ -37,9 +36,7 @@
 		blez $v0, erro # verifica se ocorreu erro ao abrir o arquivo
 		jr $ra # retorna com o identificador do arquivo em $v0
 		erro: 
-			la $a0, Error
-			li $v0, 4
-			syscall
+			print_str("Erro ao abrir o arquivo!\n")
 			li $v0, 10
 			syscall
 
