@@ -507,7 +507,7 @@
 		file: .asciiz %file_name
 	.text
 	la $a0, file
-	li $a1, 9
+	li $a1, 1
 	li $v0, 13
 	syscall
 	bgez $v0, fim
@@ -594,4 +594,89 @@
 				j read
 
 		return_eof:
+.end_macro
+
+.macro array_to_string(%array, %size, %resultado)
+	.data
+		string: .space 2048
+	.text
+	li $t0, 0 # contador vetor
+	li $t1, 0 # iterador string
+	la $t2, string
+	move $s6, %array
+	move $s7, %size
+	lp:
+		beq $t0, $s7, sai 
+		sll $t5, $t0, 2
+		add $t5, $t5, $s6
+		lw $t4, 0($t5)
+		addi $t0, $t0, 1
+
+		blt $t4, 100, dezena
+
+		centena:
+			li $t5, 100
+			li $t6, 48
+			div $t4, $t5
+			mflo $t7
+
+			add $t7, $t7, $t6
+			sll $t5, $t1, 0
+			add $t5, $t5, $t2
+			sb $t7, 0($t5)
+			addi $t1, $t1, 1
+
+		dezena_especial:
+				li $t5, 10
+				li $t6, 48
+				div $t4, $t5
+				mflo $t7
+				div $t7, $t5
+				mfhi $t7
+
+				add $t7, $t7, $t6
+				sll $t5, $t1, 0
+				add $t5, $t5, $t2
+				sb $t7, 0($t5)
+				addi $t1, $t1, 1
+
+				li $t5, 10
+				div $t4, $t5
+				j unidade
+
+		dezena: 
+			li $t5, 10
+			li $t6, 48
+			div $t4, $t5
+			blt $t4, 10, unidade
+			mflo $t7
+
+			add $t7, $t7, $t6
+			sll $t5, $t1, 0
+			add $t5, $t5, $t2
+			sb $t7, 0($t5)
+			addi $t1, $t1, 1
+
+		unidade:   
+			mfhi $t7
+			add $t7, $t7, $t6
+			sll $t5, $t1, 0
+			add $t5, $t5, $t2
+			sb $t7, 0($t5)
+			addi $t1, $t1, 1
+
+		space:
+			li $t6, 32
+			sll $t5, $t1, 0
+			add $t5, $t5, $t2
+			sb $t6, 0($t5)
+			addi $t1, $t1, 1
+		j lp
+	sai:
+		li $t6, 10
+		sll $t5, $t1, 0
+		add $t5, $t5, $t2
+		sb $t6, 0($t5)
+
+		move %resultado, $t2
 .end_macro

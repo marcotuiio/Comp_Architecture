@@ -4,6 +4,7 @@
 	Error: .asciiz "Arquivo nao encontrado!\n"
 	FilePath: .asciiz "C:\\Users\\marco\\Desktop\\UEL\\Comp_Architecture\\Arq2\\vetor7_3.txt"
 	Buffer: .asciiz " "
+	string: .space 2048
 .text
 
 	main:
@@ -23,12 +24,14 @@
         scan_int($s3)
 		subi $s3, $s3, 1
         jal add_one
-        jal print_array
+        # jal print_array
         
+		jal array_to_string
+
         jal fopen_write
         move $s0, $v0
 
-		# jal fprintf
+		jal fprintf
 
         jal fclose
         terminate
@@ -49,7 +52,7 @@
         
     fopen_write:
 		la $a0, FilePath
-		li $a1, 9
+		li $a1, 1
 		li $v0, 13
 		syscall
 		blez $v0, erro_w # verifica se ocorreu erro ao abrir o arquivo
@@ -115,6 +118,14 @@
 		return_eof:
 			jr $ra
 
+	fprintf:
+        move $a0, $s0 # file descriptor
+        move $a1, $t2 # string to print
+        li $a2, 2048 # string length
+        li $v0, 15
+        syscall
+        jr $ra
+
     print_array:
         li $t1, 0
         loop:
@@ -136,3 +147,81 @@
         addi $t5, $t5, 1
         sw $t5, 0($t4)
         jr $ra
+
+	array_to_string:
+        li $t0, 0 # contador vetor
+        li $t1, 0 # contador string
+        la $t2, string
+        lp:
+            beq $t0, $s2, sai 
+            sll $t5, $t0, 2
+            add $t5, $t5, $s1
+            lw $t4, 0($t5)
+            addi $t0, $t0, 1
+
+            blt $t4, 100, dezena
+
+            centena:
+                li $t5, 100
+                li $t6, 48
+                div $t4, $t5
+                mflo $t7
+
+                add $t7, $t7, $t6
+                sll $t5, $t1, 0
+                add $t5, $t5, $t2
+                sb $t7, 0($t5)
+                addi $t1, $t1, 1
+
+            dezena_especial:
+                    li $t5, 10
+                    li $t6, 48
+                    div $t4, $t5
+                    mflo $t7
+                    div $t7, $t5
+                    mfhi $t7
+
+                    add $t7, $t7, $t6
+                    sll $t5, $t1, 0
+                    add $t5, $t5, $t2
+                    sb $t7, 0($t5)
+                    addi $t1, $t1, 1
+
+                    li $t5, 10
+                    div $t4, $t5
+                    j unidade
+
+            dezena: 
+                li $t5, 10
+                li $t6, 48
+                div $t4, $t5
+                blt $t4, 10, unidade
+                mflo $t7
+
+                add $t7, $t7, $t6
+                sll $t5, $t1, 0
+                add $t5, $t5, $t2
+                sb $t7, 0($t5)
+                addi $t1, $t1, 1
+
+            unidade:   
+                mfhi $t7
+                add $t7, $t7, $t6
+                sll $t5, $t1, 0
+                add $t5, $t5, $t2
+                sb $t7, 0($t5)
+                addi $t1, $t1, 1
+
+            space:
+                li $t6, 32
+                sll $t5, $t1, 0
+                add $t5, $t5, $t2
+                sb $t6, 0($t5)
+                addi $t1, $t1, 1
+            j lp
+        sai:
+            li $t6, 10
+            sll $t5, $t1, 0
+            add $t5, $t5, $t2
+            sb $t6, 0($t5)
+            jr $ra

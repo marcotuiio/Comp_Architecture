@@ -27,7 +27,7 @@
 
     fopen:
 		la $a0, FilePath
-		li $a1, 1 # somente leitura
+		li $a1, 1 # somente escrita
 		li $v0, 13
 		syscall
 		blez $v0, erro # verifica se ocorreu erro ao abrir o arquivo
@@ -44,9 +44,9 @@
 		jr $ra
 
     fprintf:
-        move $a0, $s0
-        move $a1, $s1
-        move $a2, $s2
+        move $a0, $s0 # carrega o identificador do arquivo em $a0 
+        move $a1, $s1 # carrega o endereco de Input em $a1
+        move $a2, $s2 # carrega o endereco de MaxSize em $a2
         li $v0, 15
         syscall
         jr $ra
