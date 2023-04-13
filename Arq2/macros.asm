@@ -337,12 +337,12 @@
 .end_macro
 
 .macro print_matrix(%matrix, %n, %m) # imprime matriz com n linhas e m colunas
-	mul $s0, %n, %m
+	mul $t6, %n, %m
 	li $t1, 0
 	la $t2, %matrix
 	li $t7, 0
 	loop_print:	
-			beq $s0, $t1, exit  # Se tamanho máximo do vetor ja foi alcan�ado, encerrar
+			beq $t6, $t1, exit  # Se tamanho máximo do vetor ja foi alcan�ado, encerrar
 			sll $t3, $t1, 2  # Reg temp $t1 = 4*i (indice atual do vetor)
 			add $t3, $t3, $t2  # Carregando em $t1 = endere�o de vetor[i] 
 			lb $a0, 0($t3)  # $a0 = valor de vetor[i]
@@ -527,7 +527,7 @@
 	syscall
 .end_macro
 
-.macro count_char(%file_descriptor, %result)
+.macro count_char_file(%file_descriptor, %result)
 	.data
 		buffer: .asciiz " "
 	.text
@@ -540,6 +540,19 @@
 			addi $t0, $t0, 1
 			bnez $v0, count # (if !EOF goto count)
 			subi $t0, $t0, 1 # desconsiderando EOF
+		move %result, $t0
+.end_macro
+
+.macro count_char_str(%string, %result)
+	move $a0, %string
+	li $t0, 0
+	count:
+		lb $t1, ($a0)
+		beq $t1, 0, end
+		addi $t0, $t0, 1
+		addi $a0, $a0, 1
+		j count
+	end:
 		move %result, $t0
 .end_macro
 
@@ -598,7 +611,7 @@
 
 .macro array_to_string(%array, %size, %resultado)
 	.data
-		string: .space 2048
+		string: .space 1024
 	.text
 	li $t0, 0 # contador vetor
 	li $t1, 0 # iterador string

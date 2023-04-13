@@ -24,12 +24,16 @@
         scan_int($s3)
 		subi $s3, $s3, 1
         jal add_one
-        # jal print_array
+        
+        print_str("\n Novo vetor: ")
+        jal print_array
         
 		jal array_to_string
 
         jal fopen_write
         move $s0, $v0
+
+        jal count_char_str
 
 		jal fprintf
 
@@ -121,10 +125,24 @@
 	fprintf:
         move $a0, $s0 # file descriptor
         move $a1, $t2 # string to print
-        li $a2, 2048 # string length
+        move $a2, $s6 # string length
         li $v0, 15
         syscall
         jr $ra
+
+    count_char_str:
+        li $t0, 0 # posicao string
+        li $s6, 0 # contador de caracteres
+        count:
+            sll $t4, $t0, 0
+            add $t4, $t4, $t2
+            lb $t3, 0($t4) # linha da posicao a ser zerada
+            beqz $t3, over
+            addi $t0, $t0, 1
+            addi $s6, $s6, 1
+            j count
+        over:
+            jr $ra
 
     print_array:
         li $t1, 0

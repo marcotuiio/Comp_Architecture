@@ -13,18 +13,18 @@
         calloc($s7, $s2) # aloca memoria para o array de primos
         li $s3, 0
         jal todos_primos
-        # jal print_array1
 
         calloc($s7, $s4) # aloca memoria para o array de primos gemeos
         li $s5, 0
         jal primos_gemeos
-        jal print_array2
 
         jal array_to_string
 
         jal fopen
 		move $s0, $v0
 		
+        jal count_char_str
+
         jal fprintf
 
         jal fclose
@@ -116,10 +116,24 @@
     fprintf:
         move $a0, $s0 # file descriptor
         move $a1, $t2 # string to print
-        li $a2, 2048 # string length
+        move $a2, $s6 # string length
         li $v0, 15
         syscall
         jr $ra
+
+    count_char_str:
+        li $t0, 0 # posicao string
+        li $s6, 0 # contador de caracteres
+        count:
+            sll $t4, $t0, 0
+            add $t4, $t4, $t2
+            lb $t3, 0($t4) # linha da posicao a ser zerada
+            beqz $t3, over
+            addi $t0, $t0, 1
+            addi $s6, $s6, 1
+            j count
+        over:
+            jr $ra
 
     array_to_string:
         li $t0, 0 # contador vetor
@@ -210,30 +224,3 @@
             sb $t6, 0($t5)
             jr $ra
 
-     print_array1:
-        li $t1, 0
-        l1:
-            beq $s3, $t1, e1
-            sll $t5, $t1, 2 
-            add $t5, $t5, $s2
-            lw $t4, 0($t5)  
-            print_int($t4)
-            print_str(" ")
-            addi $t1, $t1, 1 
-            j l1
-		e1:
-			jr $ra
-
-    print_array2:
-        li $t1, 0
-        l2:
-            beq $s5, $t1, e2
-            sll $t5, $t1, 2 
-            add $t5, $t5, $s4
-            lw $t4, 0($t5)  
-            print_int($t4)
-            print_str(" ")
-            addi $t1, $t1, 1 
-            j l2
-		e2:
-			jr $ra

@@ -2,7 +2,7 @@
 
 .data 
     FilePath: .asciiz "C:\\Users\\marco\\Desktop\\UEL\\Comp_Architecture\\Arq2\\vogais_asterisco.txt"
-    Input: .space 1023
+    Input: .space 1024
     MaxSize: .word 1024
 .text
 
@@ -18,6 +18,8 @@
 
         jal fopen # abre o arquivo
         move $s0, $v0 # salva o identificador do arquivo em $s0
+
+        jal count_char_str
 
         jal fprintf
 
@@ -50,6 +52,20 @@
         li $v0, 15
         syscall
         jr $ra
+
+    count_char_str:
+        li $t0, 0 # posicao string
+        li $s2, 0 # contador de caracteres
+        count:
+            sll $t4, $t0, 0
+            add $t4, $t4, $s1
+            lb $t3, 0($t4) # linha da posicao a ser zerada
+            beqz $t3, over
+            addi $t0, $t0, 1
+            addi $s2, $s2, 1
+            j count
+        over:
+            jr $ra
 
     asterisco:
         sll $t1, $t0, 0
