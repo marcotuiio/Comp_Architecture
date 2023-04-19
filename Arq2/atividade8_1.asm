@@ -35,11 +35,23 @@
         calloc($a0, $s3)
         print_str("\nEnter info to add: ")
         scan_int($t2)
+        li $t7, 0
         sw $t2, 4($s3) # node->info = info
-        sw $zero, 8($s3) # node->next = null
+        sw $t7, 8($s3) # node->next = null
 
-        lw $t1, 4($s0) 
-        bnez $t1, plus
+        lw $t1, 8($s0) # load head
+        beqz $t1, first_node # if head == null, first_node
+
+        traverse:
+            lw $t2, 8($t1) # load next
+            beqz $t2, save_node # if next == null, plus
+            next_node:
+                move $t1, $t2 # previous = next
+                j traverse
+            save_node:
+                sw $s3, 8($t1) # previous->next = node
+                j plus
+
         first_node:
             sw $s3, 8($s0) # head = node
         plus:
@@ -62,7 +74,7 @@
         j loop
 
     delete_node:
-        print_str("Enter info to be deleted: ")
+        print_str("\nEnter info to be deleted: ")
         scan_int($t2)
         lw $t1, 8($s0) # load head
         beqz $t1, loop # if head == null, loop
@@ -72,18 +84,28 @@
             move $t4, $t1 # save previous
             lw $t1, 8($t1) # load next
             bnez $t1, remove_loop
+            print_str("\nInfo not found\n")
+            j loop
             remove:
+                print_str("\nNode found: ")
+                print_int($t3)
                 # t1 = current to be removed
                 # t4 = previous
-                lw $t5, 8($t1) # load next
-                sw $t5, 8($t4) # previous->next = next
-                lw $t1, 0($s2) # load word size
-                subi $t1, $t1, 1
-                sw $t1, 4($s0) # list->size--
+                lw $t5, 8($s0) # load head
+                bne $t1, $t5, not_head # if current == head, remove_head
+                if_head:
+                    lw $t5, 8($t1) # load next
+                    sw $t5, 8($s0) # head = next
+                    j minus
+                not_head:    
+                    lw $t5, 8($t1) # load next
+                    sw $t5, 8($t4) # previous->next = next
+                minus:
+                    lw $t1, 4($s0) # load word size
+                    subi $t1, $t1, 1
+                    sw $t1, 4($s0) # list->size--
                 print_str("\nNode removed\n")
-                jr $ra                 
-        print_str("\nInfo not found\n")
-        jr $ra
+                j loop
 
     print_size:
         lw $t2, 4($s0) # load size
@@ -93,10 +115,10 @@
         j loop
 
     menu:
-        print_str("\n1. Create node\n")
+        print_str("\n1. Add node\n")
         print_str("2. Print list\n")
-        print_str("3. Delete\n")
-        print_str("4. Size\n")
+        print_str("3. Delete node\n")
+        print_str("4. List size\n")
         print_str("0. Exit\n")
         print_str(">> Enter option: ")
         scan_int($t0)
