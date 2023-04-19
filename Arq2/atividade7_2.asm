@@ -1,22 +1,28 @@
 .include "macros.asm"
 
 .data 
-    FilePath: .asciiz "C:\\Users\\marco\\Desktop\\UEL\\Comp_Architecture\\Arq2\\vogais_asterisco.txt"
+    FileInput: .asciiz "C:\\Users\\marco\\Desktop\\UEL\\Comp_Architecture\\Arq2\\input_string.txt"
+    FileOutput: .asciiz "C:\\Users\\marco\\Desktop\\UEL\\Comp_Architecture\\Arq2\\vogais_asterisco.txt"
     Input: .space 1024
-    MaxSize: .word 1024
 .text
 
     main:
-        print_str("Digite uma string: \n")
-        la $s1, Input # carrega o endereco de Input em $s1
-        lw $s2, MaxSize # carrega o endereco de MaxSize em $s2 
-        scan_str($s1, $s2) # le a string
+        jal fopen_read
+        move $s0, $v0 # salva o identificador do arquivo em $s0
+        jal fscanf # le o arquivo
+        
+        jal fclose
+        print_str("String lida do arquivo: \n")
+        la $s1, Input
+        move $a0, $s1
+        li $v0, 4
+        syscall
 
         li $t0, 0
         li $t3, 42 # carrega um asterisco em $t3 
         jal asterisco
 
-        jal fopen # abre o arquivo
+        jal fopen_write # abre o arquivo
         move $s0, $v0 # salva o identificador do arquivo em $s0
 
         jal count_char_str
@@ -27,17 +33,36 @@
 
         terminate
 
-    fopen:
-		la $a0, FilePath
-		li $a1, 1 # somente escrita
+    fopen_read:
+		la $a0, FileInput
+		li $a1, 0 # somente leitura
 		li $v0, 13
 		syscall
-		blez $v0, erro # verifica se ocorreu erro ao abrir o arquivo
+		blez $v0, erro_r # verifica se ocorreu erro ao abrir o arquivo
 		jr $ra # retorna com o identificador do arquivo em $v0
-		erro: 
+		erro_r: 
 			print_str("Erro ao abrir o arquivo!\n")
 			li $v0, 10
 			syscall
+
+    fopen_write:
+		la $a0, FileOutput
+		li $a1, 1 # somente escrita
+		li $v0, 13
+		syscall
+		blez $v0, erro_w # verifica se ocorreu erro ao abrir o arquivo
+		jr $ra # retorna com o identificador do arquivo em $v0
+		erro_w: 
+			print_str("Erro ao abrir o arquivo!\n")
+			li $v0, 10
+			syscall
+
+    fscanf:
+        move $a0, $s0 # carrega o identificador do arquivo em $a0
+        la $a1, Input# carrega o endereco de Input em $a1
+        la $a2, 1024 # carrega o endereco de MaxSize em $a2
+        li $v0, 14
+        syscall
 
 	fclose:
 		move $a0, $s0
