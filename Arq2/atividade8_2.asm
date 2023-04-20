@@ -184,7 +184,7 @@
                 j loop
 
     merge:
-        print_str("\Concatenating list 2 into 1\n")
+        print_str("\nConcatenating list 2 into 1\n")
         move $s0, $s1 # list 1
 
         lw $t1, 8($s0) # load head
