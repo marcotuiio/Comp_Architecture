@@ -27,7 +27,7 @@
     
     create_list:
         lw $a0, 0($s0) # load word size
-        calloc($a0, $s1)
+        calloc($a0, $s0)
         jr $ra
 
     create_node:
@@ -35,9 +35,8 @@
         calloc($a0, $s3)
         print_str("\nEnter info to add: ")
         scan_int($t2)
-        li $t7, 0
         sw $t2, 4($s3) # node->info = info
-        sw $t7, 8($s3) # node->next = null
+        sw $zero, 8($s3) # node->next = null
 
         lw $t1, 8($s0) # load head
         beqz $t1, first_node # if head == null, first_node
