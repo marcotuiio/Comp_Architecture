@@ -193,7 +193,7 @@
 		la %sum, ($t7)
 .end_macro
 
-.macro sort_array(%array, %size)
+.macro bubble_sort(%array, %size)
 	add $s0, %size, 0
 	add $s5, $s0, -1  # $s5 = Tamanho do vetor -1 (pois são dois loops com essa condição de parada)
 	la $s6, %array
@@ -211,8 +211,7 @@
 			sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
 			add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
 			lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
-			sgt $t0, $t2, $t4  # Se vetor[j] > vetor[j+1], $t0=1
-			bne $t0, 1, rept
+			blt $t2, $t4, rept  # Se vet[j] < vet[j+1], não fazer swap
 			swap:
 				add $t5, $t2, 0  # $t5 = vet[j] 
 				sw $t4, 0($t1)  # vet[j] = vet[j+1], posição 0($t1) recebendo conteúdo de $t4  
@@ -246,8 +245,7 @@
 			sll $t3, $s3, 2  # Reg temp $t3 = 4*j+1 (indice atual+1 do vetor)
 			add $t3, $t3, $s6  # Carregando em $t3 = endereço de vetor[j+1] 
 			lw $t4, 0($t3)  # $t4 = valor de vetor[j+1]
-			slt $t0, $t2, $t4  # Se vetor[j] < vetor[j+1], $t0=1
-			bne $t0, 1, rept
+			bgt $t2, $t4, rept  # Se vet[j] > vet[j+1], não fazer swap
 			swap:
 				add $t5, $t2, 0  # $t5 = vet[j] 
 				sw $t4, 0($t1)  # vet[j] = vet[j+1], posição 0($t1) recebendo conteúdo de $t4  
@@ -261,6 +259,48 @@
 			addi $t6, $t6, 1  # i = i + 1
 			j loop1
 	end1:
+.end_macro
+
+.macro insertion_sort(%array, %size)
+	move $s0, %array
+	move $s1, %size
+	li $t1, 1 # i = 1
+	loop_for:
+		beq $t1, $s1, end_for  # Se i = tamanho do vetor, encerrar
+		sub $t2, $t1, 1 # j = i - 1
+		
+		sll $t3, $t1, 2  # Reg temp $t3 = 4*i (indice atual do vetor)
+		add $t3, $t3, $s0  # Carregando em $t3 = endereço de vetor[i]
+		lw $t4, 0($t3)  # $t4 = valor de vetor[i]
+
+		sll $t5, $t2, 2  # Reg temp $t5 = 4*j (indice atual do vetor)
+		add $t5, $t5, $s0  # Carregando em $t5 = endereço de vetor[j]
+		lw $t6, 0($t5)  # $t6 = valor de vetor[j]
+
+		loop_while:
+			bltz $t2, end_while  # Se j < 0, encerrar
+			blt $t6, $t4, end_while
+
+			addi $t5, $t2, 1 # $t5 = j+1
+			sll $t5, $t5, 2  # Reg temp $t5 = 4*(j+1) (indice atual do vetor)
+			add $t5, $t5, $s0  # Carregando em $t5 = endereço de vetor[j+1]
+			sw $t6, 0($t5)  # vetor[j+1] = vetor[j]
+
+			subi $t2, $t2, 1  # j = j - 1
+			sll $t5, $t2, 2  # Reg temp $t5 = 4*j (indice atual do vetor)
+			add $t5, $t5, $s0  # Carregando em $t5 = endereço de vetor[j]
+			lw $t6, 0($t5)  # $t6 = valor de vetor[j]
+			j loop_while
+		
+			end_while:
+				addi $t5, $t2, 1 # $t5 = j+1
+				sll $t5, $t5, 2  # Reg temp $t5 = 4*(j+1) (indice atual do vetor)
+				add $t5, $t5, $s0  # Carregando em $t5 = endereço de vetor[j+1]
+				sw $t4, 0($t5)  # vetor[j+1] = vetor[i]
+				addi $t1, $t1, 1  # i = i + 1
+				j loop_for
+		end_for:
+			j loop
 .end_macro
 
 .macro rotate_array(%array, %size)
