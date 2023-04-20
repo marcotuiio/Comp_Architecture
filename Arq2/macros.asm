@@ -693,3 +693,188 @@
 
 		move %resultado, $t2
 .end_macro
+
+## LINKED LIST
+.macro create_linked_list(%header)
+	.data
+		list: .word 12, 0, 0 # word size, number of elements, head
+	.text
+	la (%header), list
+	lw $t0, 0(%header)
+	calloc($t0, %header)
+.end_macro
+
+.macro add_node(%list, %info)
+	.data 
+		list: .word 12, 0, 0 # word size, number of elements, head
+		node: .word 12, 0, 0 # word size, info, next 
+	.text
+	move $s0, %list
+	move $t2, %info
+	
+	la $s2, node
+	lw $a0, 0($s2) # load word size
+	calloc($a0, $s3)
+	sw $t2, 4($s3) # node->info = info
+	sw $zero, 8($s3) # node->next = null
+	
+	lw $t1, 8($s0) # load head
+	beqz $t1, first_node # if head == null, first_node
+	traverse:
+		lw $t2, 8($t1) # load next
+		beqz $t2, save_node # if next == null, plus
+		next_node:
+			move $t1, $t2 # previous = next
+			j traverse
+		save_node:
+			sw $s3, 8($t1) # previous->next = node
+			j plus
+
+	first_node:
+		sw $s3, 8($s0) # head = node
+	plus:
+		lw $t2, 4($s0) # load size
+		addi $t2, $t2, 1 # size++
+		sw $t2, 4($s0) # list->size = size
+	j loop
+.end_macro
+
+.macro delete_node(%list, %value)
+    .data 
+		list: .word 12, 0, 0 # word size, number of elements, head
+		node: .word 12, 0, 0 # word size, info, next 
+	.text
+	move $s0, %list
+	move $t2, %info
+
+	lw $t1, 8($s0) # load head
+	beqz $t1, loop # if head == null, loop
+	remove_loop:
+		lw $t3, 4($t1) # load current info
+		beq $t2, $t3, remove
+		move $t4, $t1 # save previous
+		lw $t1, 8($t1) # load next
+		bnez $t1, remove_loop
+		print_str("\nInfo not found\n")
+		j loop
+		remove:
+			print_str("\nNode found: ")
+			print_int($t3)
+			# t1 = current to be removed
+			# t4 = previous
+			lw $t5, 8($s0) # load head
+			bne $t1, $t5, not_head # if current == head, remove_head
+			if_head:
+				lw $t5, 8($t1) # load next
+				sw $t5, 8($s0) # head = next
+				j minus
+			not_head:    
+				lw $t5, 8($t1) # load next
+				sw $t5, 8($t4) # previous->next = next
+			minus:
+				lw $t1, 4($s0) # load word size
+				subi $t1, $t1, 1
+				sw $t1, 4($s0) # list->size--
+			print_str("\nNode removed\n")
+			j loop
+.end_macro
+
+.macro print_linked_list(%list)
+	.data 
+		list: .word 12, 0, 0 # word size, number of elements, head
+		node: .word 12, 0, 0 # word size, info, next 
+	.text
+	move $s0, %list
+	print_list:
+        lw $t2, 8($s0) # load head
+        beqz $t2, loop # if head == null, loop
+        print_str("\nList: ")
+        print_loop:
+            lw $t3, 4($t2) # load info
+            print_int($t3)
+            print_str(" ")
+            lw $t2, 8($t2) # load next
+            bnez $t2, print_loop
+        print_str("\n")
+        j loop
+.end_macro
+
+.macro print_list_size(%list)
+	.data 
+		list: .word 12, 0, 0 # word size, number of elements, head
+		node: .word 12, 0, 0 # word size, info, next 
+	.text
+	move $s0, %list
+	print_size:
+        lw $t2, 4($s0) # load size
+        print_str("\nSize: ")
+        print_int($t2)
+        print_str("\n")
+        j loop
+.end_macro
+
+.macro sort_list_ascending(%list)
+	.data 
+		list: .word 12, 0, 0 # word size, number of elements, head
+		node: .word 12, 0, 0 # word size, info, next 
+	.text
+	print_str("\nSorting list in ascending order\n")
+	move $s0, %list
+	lw $t1, 8($s0) # load head
+	beqz $t1, loop
+
+	lw $t2, 4($s0) # size
+	subi $t2, $t2, 1 # flag 
+	li $t3, 0 # i
+	lp1:
+		beq $t3, $t2, end1
+		lw $t1, 8($s0)
+		li $t4, 0 # j
+		lp2:
+			beq $t4, $t2, end2
+			lw $t5, 4($t1) # vet[j]
+			lw $t6, 8($t1) # next 
+			lw $t7, 4($t6) # vet[j+1]
+			blt $t5, $t7, rept1 # if vet[j] < vet[j+1], NEXT
+			swap1:
+				sw $t7, 4($t1) # vet[j] = valor vet[j+1]
+				sw $t5, 4($t6) # vet[j+1] = valor vet[j]
+			rept1:
+				lw $t1, 8($t1)
+				addi $t4, $t4, 1
+				j lp2
+		end2:
+			addi $t3, $t3, 1
+			j lp1
+	end1:
+		j loop
+.end_macro
+
+.macro find_index_list(%list, %value)
+	.data 
+		list: .word 12, 0, 0 # word size, number of elements, head
+		node: .word 12, 0, 0 # word size, info, next 
+	.text
+	move $s0, %list
+	move $t2, %value
+
+	lw $t1, 8($s0) # load head
+	beqz $t1, loop # if head == null, loop
+	li $t5, 0
+	looking_loop:
+		lw $t3, 4($t1) # load current info
+		beq $t2, $t3, found
+		move $t4, $t1 # save previous
+		lw $t1, 8($t1) # load next
+		addi $t5, $t5, 1
+		bnez $t1, looking_loop
+		print_str("\nInfo not found\n")
+		j loop
+		found:
+			print_str("\nNode found, ")
+			print_int($t3)
+			print_str(" in index ")
+			print_int($t5)
+			print_str("\n")
+			j loop
+.end_macro
