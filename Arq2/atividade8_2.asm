@@ -99,6 +99,7 @@
 
     print_all:
         li $t1, 0
+        print_str("\n")
         loop_vetor:
             beq $t1, $s7, loop
             sll $t2, $t1, 2
@@ -175,7 +176,7 @@
             print_str("\nInfo not found\n")
             j loop
             found:
-                print_str("\nNode found ")
+                print_str("\nNode found, ")
                 print_int($t3)
                 print_str(" in index ")
                 print_int($t5)
@@ -183,7 +184,7 @@
                 j loop
 
     merge:
-        print_str("\nMerging list 2 into 1\n")
+        print_str("\Concatenating list 2 into 1\n")
         move $s0, $s1 # list 1
 
         lw $t1, 8($s0) # load head
@@ -402,7 +403,7 @@
         print_str("2. Print list\n")
         print_str("3. Delete node\n")
         print_str("4. Find element index\n")
-        print_str("5. Concatenate lists\n")
+        print_str("5. Concatenate list 1 with 2\n")
         print_str("6. Divide list\n")
         print_str("7. Copy list 2 into 1\n")
         print_str("8. Sort list ascending order\n")

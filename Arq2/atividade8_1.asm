@@ -122,3 +122,4 @@
         print_str(">> Enter option: ")
         scan_int($t0)
         jr $ra
+        
