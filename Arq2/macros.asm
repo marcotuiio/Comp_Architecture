@@ -66,6 +66,37 @@
 	syscall
 .end_macro
 
+.macro strcmp(%str1, %str2, %return)
+	move $s0, %str1  # Carregando em $s0 o endereço da primeira string
+	move $s7, %str2  # Carregando em $s7 o endereço da segunda string
+
+	print_str("Comparando ")
+	move $a0, $s0
+	li $v0, 4
+	syscall
+	print_str(" com ")
+	move $a0, $s7
+	li $v0, 4
+	syscall
+
+	li $t5, 0      # inicializa contador de posição na string
+	loop_strcmp:
+		lbu $t2, ($s0) # carrega byte da primeira string
+		lbu $t6, ($s7) # carrega byte da segunda string
+		beqz $t2, end  # se chegar ao final da string, sai do loop
+		bne $t2, $t6, dif # se os bytes são diferentes, sai do loop
+		addi $s0, $s0, 1 # avança posição na primeira string
+		addi $s7, $s7, 1 # avança posição na segunda string
+		j loop_strcmp         # volta ao início do loop
+	dif:
+		li $v1, 1       # as strings são diferentes
+		j return
+	end:
+		li $v1, 0       # as strings são iguais
+	return:
+		move %return, $v1
+.end_macro
+
 ## ARRAYS
 .macro scan_array(%array, %size)
 	add $s0, %size, 0
@@ -152,6 +183,20 @@
 			addi $t1, $t1, 1  # Atualizando i = i+1
 			j loop_print
 	exit:
+.end_macro
+
+.macro clean_string(%string)
+	move $a0, %string
+	li $t8, 0         # inicializa o contador de posição da string        
+	cleaning:
+		sll $t2, $t8, 0
+		add $t2, $t2, $a0
+		lb $t1, 0($t2)     # carrega o caractere
+		beqz $t1, end_cleaning # termina o loop se o caractere é zero
+		sb $zero, 0($t2)   # substitui o caractere por zero
+		addi $t8, $t8, 1  # avança para o próximo caractere
+		bnez $t1, cleaning    # repete o loop se o próximo caractere não é zero
+	end_cleaning:
 .end_macro
 
 .macro sum_array(%array, %size, %sum)
