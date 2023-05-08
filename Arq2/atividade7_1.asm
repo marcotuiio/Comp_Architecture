@@ -138,7 +138,7 @@
     array_to_string:
         li $t0, 0 # contador vetor
         li $t1, 0 # contador string
-        la $t2, string
+        la $t2, string  
         lp:
             beq $t0, $s5, sai 
             sll $t5, $t0, 2
